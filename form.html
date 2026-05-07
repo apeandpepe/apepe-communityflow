@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEPE · Community Input</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{background:#182206;font-family:'Barlow',sans-serif;color:#c8e090;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+a{text-decoration:none;color:inherit;}
+:root{--g:#96d428;--g2:#b4e840;--g3:#d0f060;--glow:rgba(150,212,40,.6);--text:#f2fcd8;--muted:rgba(150,200,64,.5);}
+
+body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
+
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 10px var(--glow),0 0 22px rgba(150,212,40,.35);}50%{box-shadow:0 0 4px rgba(150,212,40,.22);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px) rotate(3deg);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* CARD FRAME */
+.card{
+  width:100%;max-width:1280px;
+  height:calc(100vh - 40px);max-height:820px;
+  border-radius:20px;overflow:hidden;
+  display:grid;grid-template-columns:1fr 1fr;
+  background:linear-gradient(155deg,#121c08 0%,#0d1505 55%,#081003 100%);
+  box-shadow:
+    0 0 0 1.5px rgba(150,212,40,.48),
+    0 0 0 3px rgba(0,0,0,.9),
+    0 0 0 4px rgba(150,212,40,.1),
+    0 50px 120px rgba(0,0,0,.92),
+    0 0 80px rgba(150,212,40,.07);
+  position:relative;
+}
+.card::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(150,212,40,.022) 1px,transparent 1px);background-size:26px 26px;}
+
+/* top bar floats above both panels */
+.top-bar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:flex-end;padding:18px 32px;pointer-events:none;}
+.top-bar > *{pointer-events:auto;}
+.back-btn{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(150,212,40,.55);border:1px solid rgba(150,212,40,.22);padding:7px 18px;border-radius:5px;background:rgba(4,8,2,.72);backdrop-filter:blur(6px);transition:all .2s;}
+.back-btn:hover{color:var(--g2);border-color:rgba(150,212,40,.32);}
+
+/* LEFT IMAGE */
+.img-panel{position:relative;overflow:hidden;background:#030802;}
+.hero-img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
+.img-fallback{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#060e02;}
+.fb-txt{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(150,212,40,.2);border:1px dashed rgba(150,212,40,.12);padding:8px 18px;border-radius:4px;}
+
+/* RIGHT PANEL */
+.right-panel{
+  position:relative;z-index:1;
+  background:#131313;
+  border-left:1px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.right-panel::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.012) 1px,transparent 1px);background-size:24px 24px;}
+.r-edge{height:1px;flex-shrink:0;background:rgba(255,255,255,.06);}
+
+.r-body{position:relative;z-index:2;flex:1;overflow-y:auto;padding:28px 28px 18px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;}
+.r-body::-webkit-scrollbar{width:3px;}
+.r-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+
+/* HEAD */
+.r-head{margin-bottom:0;}
+.r-eyebrow{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500;font-size:14px;letter-spacing:0;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.r-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;font-size:30px;line-height:1.22;color:#ffffff;letter-spacing:-.4px;margin-bottom:14px;}
+.r-sub{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:400;color:rgba(255,255,255,.48);line-height:1.55;}
+.r-divider{height:1px;background:rgba(255,255,255,.06);margin:18px 0 18px;}
+
+/* EXAMPLE IDEAS */
+.ex-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+.ex-icon{font-size:16px;}
+.ex-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:.5px;text-transform:uppercase;color:#f5c842;font-style:italic;}
+.ex-tag{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:.3px;color:rgba(255,255,255,.4);}
+
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:18px;background:#1f1f1f;border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px 8px;}
+.ex-card{display:grid;grid-template-columns:auto 1fr;column-gap:9px;row-gap:0;padding:0 6px;}
+.ex-card-icon{grid-column:1;grid-row:1;font-size:22px;line-height:1;align-self:start;margin-top:0;filter:grayscale(.3) brightness(.95);}
+.ex-card-name{grid-column:2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#ffffff;line-height:1.1;letter-spacing:-.1px;white-space:nowrap;}
+.ex-card-tag{grid-column:2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:0;color:rgba(255,255,255,.4);line-height:1.1;margin-top:1px;}
+.ex-card-desc{grid-column:1/-1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11.5px;font-weight:400;color:rgba(255,255,255,.45);line-height:1.5;margin-top:14px;}
+
+/* OPINION / NICKNAME BLOCK HEADERS */
+.op-block{margin-bottom:14px;background:#1f1f1f;border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px 16px 14px;}
+.nm-block{margin-bottom:10px;}
+.op-block-head{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;}
+.op-lbl{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:#ffffff;font-style:italic;}
+.op-tag{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:.3px;color:rgba(255,255,255,.4);}
+.op-help{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);line-height:1.45;margin-bottom:10px;}
+
+/* TEXTAREA */
+.op-wrap{position:relative;}
+.op-area{width:100%;min-height:90px;background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:12px 14px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;font-weight:400;color:#ffffff;line-height:1.5;outline:none;resize:none;transition:all .2s;}
+.op-area:focus{border-color:rgba(255,255,255,.18);background:#1a1a1a;}
+.op-area::placeholder{color:rgba(255,255,255,.3);font-weight:400;}
+.char-b{position:absolute;bottom:11px;right:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:500;letter-spacing:0;color:rgba(255,255,255,.35);background:transparent;padding:0;border:none;pointer-events:none;}
+
+/* NICKNAME INPUT */
+.nm-wrap{position:relative;margin-bottom:10px;}
+.f-input{width:100%;background:#1f1f1f;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:12px 64px 12px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;font-weight:400;color:#ffffff;outline:none;transition:all .2s;}
+.f-input:focus{border-color:rgba(255,255,255,.18);background:#252525;}
+.f-input::placeholder{color:rgba(255,255,255,.3);font-weight:400;}
+.nick-b{position:absolute;top:50%;right:14px;transform:translateY(-50%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:500;letter-spacing:0;color:rgba(255,255,255,.35);pointer-events:none;}
+.nm-note{display:flex;align-items:flex-start;gap:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,.42);line-height:1.4;margin-top:8px;}
+.nm-note-icon{flex-shrink:0;width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.28);font-size:9px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);margin-top:1px;font-style:normal;}
+
+/* SUBMIT BAR / BUTTON */
+.sub-bar{flex-shrink:0;z-index:2;border-top:1px solid rgba(255,255,255,.06);background:#131313;padding:14px 28px 18px;position:relative;}
+.sub-btn{
+  display:flex;align-items:center;justify-content:center;gap:14px;width:100%;
+  font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;
+  color:#0a1402;
+  background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);
+  border:none;border-radius:10px;padding:14px 22px;cursor:pointer;
+  transition:all .22s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 1px 0 rgba(0,0,0,.3),0 6px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.32);
+  position:relative;overflow:hidden;
+}
+.sub-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.22),transparent);transition:left .5s;}
+.sub-btn:hover:not(:disabled)::after{left:150%;}
+.sub-btn:hover:not(:disabled){box-shadow:0 2px 0 rgba(0,0,0,.32),0 10px 22px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.36);transform:translateY(-2px);filter:brightness(1.04);}
+.sub-btn:active:not(:disabled){transform:translateY(0);}
+.sub-btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-icon{display:flex;align-items:center;justify-content:center;width:26px;height:26px;flex-shrink:0;}
+.btn-icon svg{width:24px;height:24px;}
+.sub-btn:hover:not(:disabled) .btn-icon{transform:translateX(4px) rotate(-4deg);}
+.btn-icon{transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+.btn-lbl{display:flex;flex-direction:column;align-items:flex-start;gap:0;}
+.btn-lbl-main{font-size:18px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;line-height:1.1;color:#0a1402;}
+.btn-lbl-sub{font-size:11px;font-weight:600;font-style:normal;letter-spacing:.3px;text-transform:none;color:rgba(10,20,2,.65);}
+/* success */
+.success{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding:36px 30px;position:relative;z-index:2;}
+.success.show{display:flex;}
+.s-icon{width:74px;height:74px;border-radius:50%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 8px rgba(203,237,58,.08);animation:s-pop .5s cubic-bezier(.34,1.56,.64,1);}
+.s-icon svg{width:36px;height:36px;color:#0a1402;}
+.s-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;font-size:26px;color:#ffffff;letter-spacing:-.3px;margin-bottom:10px;line-height:1.2;}
+.s-desc{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;font-weight:400;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:28px;max-width:320px;}
+.s-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:600;font-size:13px;letter-spacing:.2px;padding:11px 22px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;}
+.s-btn:hover{border-color:rgba(255,255,255,.4);color:#ffffff;background:rgba(255,255,255,.04);}
+@keyframes s-pop{0%{transform:scale(0);opacity:0;}60%{transform:scale(1.1);opacity:1;}100%{transform:scale(1);opacity:1;}}
+
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.18);border-top-color:rgba(0,0,0,.56);animation:spin .7s linear infinite;flex-shrink:0;}
+
+/* MOBILE */
+@media(max-width:768px){
+  body{padding:10px;align-items:flex-start;}
+  .card{grid-template-columns:1fr;grid-template-rows:38vh 1fr;height:auto;max-height:none;border-radius:14px;}
+  .img-panel{height:38vh;}
+  .right-panel{border-left:none;border-top:1px solid rgba(255,255,255,.06);}
+  .top-bar{padding:14px 18px;}
+  .back-btn{font-size:10px;padding:6px 14px;}
+  .r-body{padding:26px 20px 14px;}
+  .r-eyebrow{font-size:12px;}
+  .r-title{font-size:24px;line-height:1.2;}
+  .r-sub{font-size:13px;}
+  .ex-grid{grid-template-columns:repeat(2,1fr);gap:0;padding:14px 10px;margin-bottom:26px;}
+  .ex-card{padding:10px 12px;border-right:none;border-bottom:1px solid rgba(255,255,255,.05);}
+  .ex-card:nth-child(2),.ex-card:nth-child(4){border-right:none;}
+  .ex-card:nth-child(odd){border-right:1px solid rgba(255,255,255,.05);}
+  .ex-card:nth-child(3),.ex-card:nth-child(4){border-bottom:none;}
+  .ex-card-icon{font-size:21px;}
+  .ex-card-name{font-size:15px;}
+  .ex-card-desc{font-size:11.5px;}
+  .op-lbl{font-size:14px;}
+  .op-area{font-size:14.5px;padding:14px 16px 36px;min-height:120px;}
+  .f-input{font-size:14.5px;padding:13px 60px 13px 16px;}
+  .sub-bar{padding:14px 20px 16px;}
+  .sub-btn{padding:15px 20px;gap:12px;}
+  .btn-lbl-main{font-size:18px;letter-spacing:1.4px;}
+  .btn-lbl-sub{font-size:11px;}
+  .btn-icon{width:26px;height:26px;}
+  .btn-icon svg{width:24px;height:24px;}
+}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="top-bar">
+    <a class="back-btn" href="index.html">← Back</a>
+  </div>
+
+  <!-- LEFT: IMAGE -->
+  <div class="img-panel">
+    <!-- File: form-image.jpg (replace in same folder) -->
+    <img class="hero-img" src="form-image.jpg" alt=""
+      onerror="this.style.display='none';document.querySelector('.img-fallback').style.display='flex';">
+    <div class="img-fallback"><div style="font-size:36px;opacity:.15;">🖼️</div><div class="fb-txt">Place form-image.jpg here</div></div>
+  </div>
+
+  <!-- RIGHT: FORM -->
+  <div class="right-panel">
+    <div class="r-edge"></div>
+
+    <div class="r-body" id="form-wrap">
+
+      <div class="r-head">
+        <div class="r-eyebrow">APEPE Community FLOW</div>
+        <h2 class="r-title">What is the best way to run the FLOW?</h2>
+        <p class="r-sub">Share your opinions based on various ideas and help<br>us decide the next FLOW together.</p>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="ex-head">
+        <span class="ex-icon">💡</span>
+        <span class="ex-title">EXAMPLE IDEAS</span>
+        <span class="ex-tag">(EXAMPLES)</span>
+      </div>
+
+      <div class="ex-grid">
+        <div class="ex-card">
+          <div class="ex-card-icon">📅</div>
+          <div class="ex-card-name">Weekly</div>
+          <div class="ex-card-tag">(BEST)</div>
+          <div class="ex-card-desc">Run FLOW<br>weekly with<br>a fixed schedule</div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-icon">🗓️</div>
+          <div class="ex-card-name">Bi-Weekly</div>
+          <div class="ex-card-tag">(GOOD)</div>
+          <div class="ex-card-desc">Run FLOW<br>every two weeks</div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-icon">📆</div>
+          <div class="ex-card-name">Monthly</div>
+          <div class="ex-card-tag">(NORMAL)</div>
+          <div class="ex-card-desc">Run FLOW<br>once a month</div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-icon">⭐</div>
+          <div class="ex-card-name">Special FLOW</div>
+          <div class="ex-card-tag">(OTHER)</div>
+          <div class="ex-card-desc">Run FLOW for<br>special proposals<br>or urgent issues</div>
+        </div>
+      </div>
+
+      <div class="op-block">
+        <div class="op-block-head">
+          <span class="op-lbl">YOUR OPINION</span>
+          <span class="op-tag">(FREE TEXT)</span>
+        </div>
+        <p class="op-help">Please share your opinion freely.<br>e.g., preferred schedule, FLOW topics, FLOW operation methods, etc.</p>
+        <div class="op-wrap">
+          <textarea class="op-area" id="opinion" placeholder="Enter your opinion here..." maxlength="1000" oninput="updateChar()"></textarea>
+          <div class="char-b" id="char-count">0 / 1000</div>
+        </div>
+      </div>
+
+      <div class="nm-block">
+        <div class="op-block-head">
+          <span class="op-lbl">COMMUNITY NAME</span>
+          <span class="op-tag">(NICKNAME)</span>
+        </div>
+        <div class="nm-wrap">
+          <input class="f-input" type="text" id="nickname" placeholder="Enter your nickname" maxlength="20" oninput="updateNickChar()">
+          <div class="nick-b" id="nick-count">0 / 20</div>
+        </div>
+        <p class="nm-note"><span class="nm-note-icon">ⓘ</span> Your nickname will be shown with your submission in the Community FLOW results.</p>
+      </div>
+
+    </div>
+
+    <div class="success" id="success">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div class="s-title">Opinion Submitted</div>
+      <div class="s-desc">Thank you for sharing your idea.<br>It will help shape the next APEPE Community FLOW.</div>
+      <a class="s-btn" href="index.html">← Back to Main</a>
+    </div>
+
+    <div class="sub-bar" id="sub-bar">
+      <button class="sub-btn" id="sub-btn" onclick="submitOpinion()">
+        <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+        <span class="btn-lbl">
+          <span class="btn-lbl-main" id="btn-txt">SUBMIT YOUR IDEA</span>
+          <span class="btn-lbl-sub">Submit your opinion</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+</div>
+<script>
+function updateChar(){document.getElementById('char-count').textContent=document.getElementById('opinion').value.length+' / 1000';}
+function updateNickChar(){document.getElementById('nick-count').textContent=document.getElementById('nickname').value.length+' / 20';}
+// TODO: connect to backend
+function submitOpinion(){
+  const op=document.getElementById('opinion').value.trim();
+  if(!op){document.getElementById('opinion').focus();return;}
+  showSuccess();
+}
+function showSuccess(){
+  document.getElementById('form-wrap').style.display='none';
+  document.getElementById('sub-bar').style.display='none';
+  document.getElementById('success').classList.add('show');
+}
+</script>
+</body>
+</html>
