@@ -284,13 +284,37 @@ body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;o
 
 </div>
 <script>
+const SUPABASE_URL='https://aejergnmqyiibgkqunxl.supabase.co';
+const SUPABASE_KEY='sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL';
+function getSessionId(){let s=localStorage.getItem('apepe_sid');if(!s){s='sid_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('apepe_sid',s);}return s;}
 function updateChar(){document.getElementById('char-count').textContent=document.getElementById('opinion').value.length+' / 1000';}
 function updateNickChar(){document.getElementById('nick-count').textContent=document.getElementById('nickname').value.length+' / 20';}
-// TODO: connect to backend
-function submitOpinion(){
+async function submitOpinion(){
   const op=document.getElementById('opinion').value.trim();
   if(!op){document.getElementById('opinion').focus();return;}
-  showSuccess();
+  const nickname=document.getElementById('nickname').value.trim();
+  const btn=document.getElementById('sub-btn');
+  btn.disabled=true;
+  const btnTxt=document.getElementById('btn-txt');
+  btnTxt.textContent='SUBMITTING...';
+
+  try{
+    const body={session_id:getSessionId(),opinion:op};
+    if(nickname) body.nickname=nickname;
+    const r=await fetch(SUPABASE_URL+'/rest/v1/opinions',{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(body)
+    });
+    if(r.ok||r.status===201){
+      showSuccess();
+    } else throw new Error(await r.text());
+  }catch(e){
+    console.error(e);
+    btn.disabled=false;
+    btnTxt.textContent='SUBMIT YOUR IDEA';
+    alert('An error occurred.\n'+e.message);
+  }
 }
 function showSuccess(){
   document.getElementById('form-wrap').style.display='none';
