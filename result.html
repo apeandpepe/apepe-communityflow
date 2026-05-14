@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEPE · Community Result</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{background:#182206;font-family:'Barlow',sans-serif;color:#c8e090;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+a{text-decoration:none;color:inherit;}
+:root{--g:#96d428;--g2:#b4e840;--g3:#d0f060;--glow:rgba(150,212,40,.6);--gold:#d4a820;--gold2:#f0c840;--gold-glow:rgba(212,168,32,.48);--text:#f2fcd8;--muted:rgba(150,200,64,.5);}
+
+body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
+
+@keyframes gold-pulse{0%,100%{box-shadow:0 0 10px var(--gold-glow),0 0 22px rgba(212,168,32,.32);}50%{box-shadow:0 0 4px rgba(212,168,32,.22);}}
+@keyframes slide-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fade-in{from{opacity:0;}to{opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.card{
+  width:100%;max-width:1280px;min-height:720px;
+  border-radius:20px;overflow:hidden;
+  background:linear-gradient(155deg,#121c08 0%,#0d1505 55%,#081003 100%);
+  box-shadow:
+    0 0 0 1.5px rgba(212,168,32,.45),
+    0 0 0 3px rgba(0,0,0,.9),
+    0 0 0 4px rgba(212,168,32,.1),
+    0 50px 120px rgba(0,0,0,.92),
+    0 0 80px rgba(212,168,32,.06);
+  position:relative;
+}
+.card::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(150,212,40,.02) 1px,transparent 1px);background-size:26px 26px;}
+
+.top-bar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:50px;background:linear-gradient(to bottom,rgba(5,10,2,.92),transparent);}
+.logo{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:24px;color:var(--g);letter-spacing:2px;text-shadow:0 0 14px rgba(150,212,40,.42);}
+.logo em{color:rgba(150,212,40,.38);font-style:normal;}
+.back-btn{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(150,212,40,.55);border:1px solid rgba(150,212,40,.2);padding:6px 16px;border-radius:5px;background:rgba(4,8,2,.72);backdrop-filter:blur(6px);transition:all .2s;}
+.back-btn:hover{color:var(--g2);border-color:rgba(150,212,40,.42);}
+
+.pill{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:21;display:inline-flex;align-items:center;gap:9px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:800;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold2);background:rgba(4,8,2,.88);border:1px solid rgba(212,168,32,.32);padding:6px 20px;border-radius:24px;backdrop-filter:blur(12px);box-shadow:0 0 16px rgba(212,168,32,.1),0 4px 12px rgba(0,0,0,.55);text-shadow:0 0 8px rgba(212,168,32,.48);white-space:nowrap;}
+.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 35%,#f8e080,var(--gold));box-shadow:0 0 7px var(--gold-glow);animation:gold-pulse 2s ease-in-out infinite;}
+
+.inner{position:relative;z-index:2;padding:70px 40px 40px;min-height:720px;display:flex;flex-direction:column;}
+
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px;}
+.loading-spinner{width:40px;height:40px;border:3px solid rgba(212,168,32,.18);border-top-color:var(--gold2);border-radius:50%;animation:spin .9s linear infinite;}
+.loading-text{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(212,168,32,.4);}
+
+/* COMING SOON */
+.cs-state{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:24px;text-align:center;animation:fade-in .6s both;}
+.cs-state.show{display:flex;}
+.cs-icon{font-size:80px;filter:drop-shadow(0 6px 20px rgba(212,168,32,.32));animation:fade-in 1s both;}
+.cs-eyebrow{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:800;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(212,168,32,.55);display:flex;align-items:center;gap:14px;}
+.cs-eyebrow::before,.cs-eyebrow::after{content:'';width:50px;height:1px;background:linear-gradient(to right,transparent,rgba(212,168,32,.45),transparent);}
+.cs-title{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:clamp(48px,6vw,82px);line-height:.9;color:var(--text);letter-spacing:1px;text-shadow:3px 5px 0 rgba(0,0,0,.9),6px 10px 0 rgba(0,0,0,.55),9px 15px 0 rgba(0,0,0,.32);}
+.cs-title em{color:var(--gold2);font-style:normal;text-shadow:3px 5px 0 rgba(80,48,0,.88),6px 10px 0 rgba(48,28,0,.55),0 0 40px rgba(212,168,32,.4);}
+.cs-desc{font-size:14px;font-weight:300;color:rgba(148,198,60,.55);line-height:1.7;max-width:540px;}
+.cs-eta{display:inline-flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(212,168,32,.7);background:rgba(212,168,32,.06);border:1px solid rgba(212,168,32,.22);padding:8px 18px;border-radius:24px;}
+.cs-eta-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold-glow);animation:gold-pulse 2s ease-in-out infinite;}
+.cs-back-btn{margin-top:8px;display:inline-flex;align-items:center;gap:9px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(212,168,32,.85);background:rgba(4,8,2,.72);border:1.5px solid rgba(212,168,32,.4);padding:11px 22px;border-radius:8px;cursor:pointer;transition:all .22s;backdrop-filter:blur(6px);}
+.cs-back-btn:hover{color:var(--gold2);border-color:rgba(212,168,32,.7);background:rgba(8,16,3,.85);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.5),0 0 24px rgba(212,168,32,.18);}
+
+/* RESULT POSTER */
+.result-state{display:none;flex-direction:column;flex:1;animation:fade-in .6s both;gap:20px;}
+.result-state.show{display:flex;}
+
+.r-head{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-bottom:6px;}
+.r-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:800;font-size:10px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold2);background:rgba(212,168,32,.07);border:1px solid rgba(212,168,32,.28);padding:5px 14px;border-radius:4px;text-shadow:0 0 8px rgba(212,168,32,.42);}
+.r-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold-glow);}
+.r-title{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:clamp(32px,4vw,52px);line-height:.95;color:var(--text);letter-spacing:.5px;text-shadow:2px 4px 0 rgba(0,0,0,.88),4px 8px 0 rgba(0,0,0,.5);max-width:90%;}
+.r-title em{color:var(--gold2);font-style:normal;text-shadow:2px 4px 0 rgba(80,48,0,.88),0 0 32px rgba(212,168,32,.32);}
+.r-desc{font-size:13px;font-weight:300;color:rgba(148,198,60,.55);line-height:1.7;max-width:680px;margin:0 auto;}
+
+.poster-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative;animation:slide-in .6s .15s both;}
+.poster-frame{position:relative;max-width:100%;max-height:100%;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba(212,168,32,.32),0 0 0 3px rgba(0,0,0,.85),0 22px 60px rgba(0,0,0,.78),0 0 80px rgba(212,168,32,.12);transition:transform .4s cubic-bezier(.16,1,.3,1);}
+.poster-frame:hover{transform:scale(1.015);}
+.poster-img{display:block;max-width:100%;max-height:62vh;width:auto;height:auto;object-fit:contain;background:#040802;}
+.poster-corner{position:absolute;width:28px;height:28px;border-color:rgba(212,168,32,.42);pointer-events:none;}
+.poster-corner.tl{top:10px;left:10px;border-top:1.5px solid;border-left:1.5px solid;border-radius:3px 0 0 0;}
+.poster-corner.tr{top:10px;right:10px;border-top:1.5px solid;border-right:1.5px solid;border-radius:0 3px 0 0;}
+.poster-corner.bl{bottom:10px;left:10px;border-bottom:1.5px solid;border-left:1.5px solid;border-radius:0 0 0 3px;}
+.poster-corner.br{bottom:10px;right:10px;border-bottom:1.5px solid;border-right:1.5px solid;border-radius:0 0 3px 0;}
+
+.r-foot{display:flex;justify-content:space-between;align-items:center;gap:18px;padding-top:16px;border-top:1px solid rgba(212,168,32,.14);flex-wrap:wrap;}
+.r-meta{display:flex;flex-direction:column;gap:3px;}
+.r-meta-eyebrow{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(212,168,32,.5);}
+.r-meta-text{font-size:13px;color:rgba(168,200,80,.7);}
+.r-foot-btn{display:inline-flex;align-items:center;gap:9px;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(212,168,32,.85);background:rgba(4,8,2,.72);border:1.5px solid rgba(212,168,32,.4);padding:10px 20px;border-radius:7px;cursor:pointer;transition:all .22s;}
+.r-foot-btn:hover{color:var(--gold2);border-color:rgba(212,168,32,.7);background:rgba(8,16,3,.85);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.5),0 0 24px rgba(212,168,32,.18);}
+
+@media(max-width:768px){
+  body{padding:10px;align-items:flex-start;}
+  .card{border-radius:14px;min-height:auto;}
+  .inner{padding:60px 18px 24px;}
+  .top-bar{padding:0 16px;height:46px;}
+  .logo{font-size:20px;}
+  .pill{font-size:9px;letter-spacing:2.5px;padding:5px 14px;}
+  .cs-icon{font-size:60px;}
+  .cs-title{font-size:42px;}
+  .cs-desc{font-size:12.5px;}
+  .r-title{font-size:30px;}
+  .poster-img{max-height:50vh;}
+  .r-foot{justify-content:center;text-align:center;}
+}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="pill"><span class="pill-dot"></span><span id="pill-text">Community Announcement</span></div>
+  <div class="top-bar">
+    <div class="logo">APEPE<em>.</em></div>
+    <a class="back-btn" href="index.html">← Back</a>
+  </div>
+
+  <div class="inner">
+
+    <div class="loading-state" id="loading-state">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading</div>
+    </div>
+
+    <div class="cs-state" id="cs-state">
+      <div class="cs-icon">🏆</div>
+      <div class="cs-title">Coming <em>Soon.</em></div>
+      <div class="cs-desc">
+        The community announcement will be revealed here.<br>
+        Stay tuned and don't miss the next big update.
+      </div>
+      <a class="cs-back-btn" href="index.html">← Back to Main</a>
+    </div>
+
+    <div class="result-state" id="result-state">
+      <div class="r-head">
+        <div class="r-eyebrow"><span class="r-eyebrow-dot"></span><span id="r-eyebrow-txt">Latest Announcement</span></div>
+        <div class="r-title" id="r-title">Title</div>
+        <div class="r-desc" id="r-desc"></div>
+      </div>
+      <div class="poster-wrap">
+        <div class="poster-frame">
+          <span class="poster-corner tl"></span><span class="poster-corner tr"></span>
+          <span class="poster-corner bl"></span><span class="poster-corner br"></span>
+          <img class="poster-img" id="poster-img" src="" alt="Result poster">
+        </div>
+      </div>
+      <div class="r-foot">
+        <div class="r-meta">
+          <div class="r-meta-eyebrow">Updated</div>
+          <div class="r-meta-text" id="r-updated">—</div>
+        </div>
+        <a class="r-foot-btn" href="index.html">← Back to Main</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  EDIT THIS WHEN RESULT IS READY:
+//  - image_url:  Path to result poster image (e.g. 'images/result-001.jpg')
+//                If empty → "Coming Soon" mode is shown
+//  - title:      Result headline
+//  - description: Optional description text
+//  - round_label: e.g. 'FLOW #001 Result'
+//  - updated_at: e.g. '2025-01-15' (display only, optional)
+// ════════════════════════════════════════════════════════
+const RESULT = {
+  image_url: '',     // ← Set this to show poster mode
+  title: '',
+  description: '',
+  round_label: 'Latest Announcement',
+  updated_at: ''
+};
+
+(function(){
+  const loading = document.getElementById('loading-state');
+  const cs = document.getElementById('cs-state');
+  const rs = document.getElementById('result-state');
+
+  loading.style.display = 'none';
+
+  if(RESULT.image_url && RESULT.image_url.trim() !== ''){
+    document.getElementById('r-title').textContent = RESULT.title || 'Result';
+    document.getElementById('r-desc').textContent = RESULT.description || '';
+    document.getElementById('poster-img').src = RESULT.image_url;
+    document.getElementById('r-eyebrow-txt').textContent = RESULT.round_label || 'Latest Announcement';
+    document.getElementById('pill-text').textContent = 'Result Announced';
+    document.getElementById('r-updated').textContent = formatDate(RESULT.updated_at);
+    rs.classList.add('show');
+  } else {
+    cs.classList.add('show');
+  }
+})();
+
+function formatDate(s){
+  if(!s) return '—';
+  try {
+    const d = new Date(s);
+    return d.toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'});
+  } catch(e){ return '—'; }
+}
+</script>
+</body>
+</html>
