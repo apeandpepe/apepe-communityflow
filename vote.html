@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEPE · Community Vote</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#cbed3a;
+  --g2:#b4e840;
+  --g3:#d8f04e;
+  --muted:rgba(168,200,84,.5);
+}
+html,body{height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#020401;color:#f8ffe0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-font-smoothing:antialiased;}
+
+.card{
+  width:100%;max-width:1280px;
+  height:calc(100vh - 40px);max-height:820px;
+  border-radius:20px;overflow:hidden;
+  display:grid;grid-template-columns:1fr 1fr;
+  background:linear-gradient(155deg,#121c08 0%,#0d1505 55%,#081003 100%);
+  box-shadow:
+    0 0 0 1.5px rgba(150,212,40,.48),
+    0 0 0 3px rgba(0,0,0,.9),
+    0 0 0 4px rgba(150,212,40,.1),
+    0 30px 60px rgba(0,0,0,.6);
+  position:relative;
+}
+
+/* TOP BAR */
+.top-bar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:flex-end;padding:18px 32px;pointer-events:none;}
+.top-bar > *{pointer-events:auto;}
+.back-btn{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(150,212,40,.55);border:1px solid rgba(150,212,40,.22);padding:7px 18px;border-radius:5px;background:rgba(4,8,2,.72);backdrop-filter:blur(6px);transition:all .2s;text-decoration:none;}
+.back-btn:hover{color:var(--g2);border-color:rgba(150,212,40,.32);}
+
+/* LEFT IMAGE */
+.img-panel{position:relative;overflow:hidden;background:#030802;}
+.hero-img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
+.img-fallback{display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:linear-gradient(135deg,#0a1404,#040801);}
+.fb-txt{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(150,212,40,.3);}
+
+/* RIGHT PANEL */
+.right-panel{
+  position:relative;z-index:1;
+  background:#131313;
+  border-left:1px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.right-panel::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.012) 1px,transparent 1px);background-size:24px 24px;}
+.r-edge{height:1px;flex-shrink:0;background:rgba(255,255,255,.06);}
+
+.r-body{position:relative;z-index:2;flex:1;overflow-y:auto;padding:28px 28px 18px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;}
+.r-body::-webkit-scrollbar{width:3px;}
+.r-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+
+/* LOADING STATE */
+.loading{display:flex;align-items:center;justify-content:center;flex:1;color:rgba(255,255,255,.4);font-size:13px;gap:10px;}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.15);border-top-color:#cbed3a;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* HEAD */
+.r-head{margin-bottom:0;}
+.r-eyebrow{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500;font-size:14px;letter-spacing:0;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.r-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;font-size:26px;line-height:1.22;color:#ffffff;letter-spacing:-.4px;margin-bottom:10px;}
+.r-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.5);flex-wrap:wrap;}
+.r-meta-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.r-meta-badge.active{background:rgba(203,237,58,.12);color:#cbed3a;border:1px solid rgba(203,237,58,.3);}
+.r-meta-badge.closed{background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);}
+.r-divider{height:1px;background:rgba(255,255,255,.06);margin:18px 0 22px;}
+
+/* OPTIONS (vote mode) */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#1f1f1f;border:1.5px solid rgba(255,255,255,.06);border-radius:10px;cursor:pointer;transition:all .15s;font-family:inherit;font-size:14.5px;color:#fff;text-align:left;width:100%;}
+.opt:hover{border-color:rgba(203,237,58,.32);background:#252525;}
+.opt.selected{border-color:#cbed3a;background:rgba(203,237,58,.06);}
+.opt-radio{flex-shrink:0;width:18px;height:18px;border:1.8px solid rgba(255,255,255,.3);border-radius:50%;position:relative;transition:all .15s;}
+.opt:hover .opt-radio{border-color:rgba(203,237,58,.5);}
+.opt.selected .opt-radio{border-color:#cbed3a;}
+.opt.selected .opt-radio::after{content:'';position:absolute;top:50%;left:50%;width:10px;height:10px;background:#cbed3a;border-radius:50%;transform:translate(-50%,-50%);}
+.opt-label{flex:1;}
+
+/* VOTED INDICATOR */
+.voted-banner{display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(203,237,58,.06);border:1px solid rgba(203,237,58,.22);border-radius:8px;margin-bottom:18px;}
+.voted-icon{width:22px;height:22px;border-radius:50%;background:#cbed3a;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.voted-icon svg{width:14px;height:14px;color:#0a1402;}
+.voted-text{font-size:13px;color:rgba(255,255,255,.85);}
+.voted-text strong{color:#fff;font-weight:700;}
+
+/* RESULTS */
+.results-h{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:#fff;font-style:italic;margin-bottom:12px;}
+.bar-row{margin-bottom:13px;}
+.bar-row-top{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:baseline;margin-bottom:5px;font-size:13.5px;}
+.bar-label{color:#fff;font-weight:500;}
+.bar-label.you{color:#cbed3a;}
+.bar-pct{color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;}
+.bar-cnt{color:rgba(255,255,255,.4);font-size:11.5px;font-variant-numeric:tabular-nums;}
+.bar-track{height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,#7ab020 0%,#cbed3a 100%);border-radius:4px;transition:width .4s cubic-bezier(.16,1,.3,1);}
+.bar-fill.you{background:linear-gradient(90deg,#cbed3a 0%,#d8f04e 100%);box-shadow:0 0 12px rgba(203,237,58,.32);}
+.total-row{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.45);display:flex;justify-content:space-between;}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding:36px 30px;}
+.empty-icon{font-size:46px;opacity:.4;margin-bottom:16px;}
+.empty-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:20px;color:#fff;letter-spacing:-.3px;margin-bottom:8px;}
+.empty-desc{font-size:13.5px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:24px;max-width:300px;}
+.empty-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);font-family:inherit;font-weight:600;font-size:13px;padding:11px 22px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;}
+.empty-btn:hover{border-color:rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.04);}
+
+/* SUBMIT BAR / BUTTON */
+.sub-bar{flex-shrink:0;z-index:2;border-top:1px solid rgba(255,255,255,.06);background:#131313;padding:14px 28px 18px;position:relative;display:none;}
+.sub-bar.show{display:block;}
+.sub-btn{
+  display:flex;align-items:center;justify-content:center;gap:14px;width:100%;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;
+  color:#0a1402;
+  background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);
+  border:none;border-radius:10px;padding:15px 22px;cursor:pointer;
+  transition:all .22s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 1px 0 rgba(0,0,0,.3),0 6px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.32);
+  position:relative;overflow:hidden;font-size:15px;letter-spacing:.3px;
+}
+.sub-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.22),transparent);transition:left .5s;}
+.sub-btn:hover:not(:disabled)::after{left:150%;}
+.sub-btn:hover:not(:disabled){box-shadow:0 2px 0 rgba(0,0,0,.32),0 10px 22px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.36);transform:translateY(-2px);filter:brightness(1.04);}
+.sub-btn:active:not(:disabled){transform:translateY(0);}
+.sub-btn:disabled{opacity:.4;cursor:not-allowed;}
+.sub-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);box-shadow:none;}
+.sub-btn-secondary:hover:not(:disabled){background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.32);color:#fff;box-shadow:none;}
+
+/* MOBILE */
+@media(max-width:768px){
+  body{padding:10px;align-items:flex-start;}
+  .card{grid-template-columns:1fr;grid-template-rows:38vh 1fr;height:auto;max-height:none;border-radius:14px;}
+  .img-panel{height:38vh;}
+  .right-panel{border-left:none;border-top:1px solid rgba(255,255,255,.06);}
+  .top-bar{padding:14px 18px;}
+  .back-btn{font-size:10px;padding:6px 14px;}
+  .r-body{padding:24px 20px 14px;}
+  .r-title{font-size:22px;line-height:1.2;}
+  .opt{padding:12px 14px;font-size:14px;}
+  .sub-bar{padding:12px 20px 16px;}
+  .sub-btn{padding:13px 18px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- LEFT: IMAGE -->
+  <div class="img-panel">
+    <img class="hero-img" src="vote-image.jpg" alt=""
+      onerror="this.style.display='none';document.querySelector('.img-fallback').style.display='flex';">
+    <div class="img-fallback"><div style="font-size:36px;opacity:.15;">🗳️</div><div class="fb-txt">Place vote-image.jpg here</div></div>
+  </div>
+
+  <!-- RIGHT: VOTE -->
+  <div class="right-panel">
+    <div class="r-edge"></div>
+
+    <div class="top-bar">
+      <a class="back-btn" href="index.html">← Back</a>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading" id="loading">
+      <span class="spinner"></span>
+      <span>Loading vote...</span>
+    </div>
+
+    <!-- MAIN VIEW (poll exists) -->
+    <div class="r-body" id="poll-view" style="display:none;">
+      <div class="r-head">
+        <div class="r-eyebrow" id="poll-title">—</div>
+        <h2 class="r-title" id="poll-question">—</h2>
+        <div class="r-meta">
+          <span class="r-meta-badge" id="poll-status">—</span>
+          <span id="poll-time">—</span>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <!-- VOTED BANNER (shown after vote) -->
+      <div class="voted-banner" id="voted-banner" style="display:none;">
+        <div class="voted-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="voted-text">You voted for <strong id="voted-option">—</strong></div>
+      </div>
+
+      <!-- OPTIONS (vote mode) -->
+      <div class="options" id="options-list"></div>
+
+      <!-- RESULTS (after vote or closed) -->
+      <div id="results" style="display:none;">
+        <div class="results-h" id="results-h">Live results</div>
+        <div id="bars"></div>
+        <div class="total-row">
+          <span>Total votes</span>
+          <span id="total-count">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY (no active poll) -->
+    <div class="empty-state" id="empty-view" style="display:none;">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No active vote</div>
+      <div class="empty-desc">There is no active vote at the moment.<br>The next flow will be announced soon.</div>
+      <a class="empty-btn" href="index.html">← Back to Main</a>
+    </div>
+
+    <!-- SUBMIT BAR -->
+    <div class="sub-bar" id="sub-bar">
+      <button class="sub-btn" id="sub-btn" onclick="onSubmit()">Submit Vote</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://aejergnmqyiibgkqunxl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL';
+
+let POLL = null;       // current poll
+let MY_VOTE = null;    // user's vote (option_index), null if not voted
+let MODE = 'vote';     // 'vote' | 'results' | 'change'
+let SELECTED = null;   // selected option index in vote mode
+
+function getSessionId(){
+  let s = localStorage.getItem('apepe_sid');
+  if(!s){
+    s = 'sid_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('apepe_sid', s);
+  }
+  return s;
+}
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatTime(closesAt, isClosed){
+  const d = new Date(closesAt);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  const stamp = `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+  if(isClosed) return `Closed at ${stamp}`;
+  const diff = d.getTime() - Date.now();
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  if(days > 0) return `Closes in ${days}d ${hours}h`;
+  if(hours > 0) return `Closes in ${hours}h ${mins}m`;
+  if(mins > 0) return `Closes in ${mins}m`;
+  return 'Closing soon';
+}
+
+async function loadPoll(){
+  const loading = document.getElementById('loading');
+  const pollView = document.getElementById('poll-view');
+  const emptyView = document.getElementById('empty-view');
+  const subBar = document.getElementById('sub-bar');
+
+  loading.style.display = 'flex';
+  pollView.style.display = 'none';
+  emptyView.style.display = 'none';
+  subBar.classList.remove('show');
+
+  try {
+    // Get latest poll (active or not — but if no active, we show closed only if it's the latest)
+    const r = await fetch(SUPABASE_URL + '/rest/v1/polls?select=*&order=created_at.desc&limit=1', {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    });
+    if(!r.ok) throw new Error('load failed');
+    const polls = await r.json();
+
+    if(polls.length === 0){
+      loading.style.display = 'none';
+      emptyView.style.display = 'flex';
+      return;
+    }
+
+    POLL = polls[0];
+    const now = Date.now();
+    const closesAt = new Date(POLL.closes_at).getTime();
+    const isClosed = !POLL.is_active || closesAt <= now;
+
+    // If poll is fully closed AND it's the only one, we still show it as final result
+    // If poll is closed and old, still show as empty? — show it as results (final)
+    // Decision: always show the latest poll, with appropriate state
+
+    // Load user's vote on this poll (if any)
+    MY_VOTE = await loadMyVote(POLL.id);
+
+    loading.style.display = 'none';
+    pollView.style.display = 'block';
+    render(isClosed);
+  } catch(e) {
+    console.error(e);
+    loading.style.display = 'none';
+    emptyView.style.display = 'flex';
+  }
+}
+
+async function loadMyVote(pollId){
+  try {
+    const r = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?select=option_index&poll_id=eq.${pollId}&session_id=eq.${encodeURIComponent(getSessionId())}`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    });
+    if(!r.ok) return null;
+    const rows = await r.json();
+    return rows.length > 0 ? rows[0].option_index : null;
+  } catch(e) { return null; }
+}
+
+async function loadAllVotes(pollId){
+  try {
+    const r = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?select=option_index&poll_id=eq.${pollId}`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    });
+    if(!r.ok) return [];
+    return await r.json();
+  } catch(e) { return []; }
+}
+
+function render(isClosed){
+  // Header
+  document.getElementById('poll-title').textContent = POLL.title || '';
+  document.getElementById('poll-question').textContent = POLL.question || '';
+
+  const badge = document.getElementById('poll-status');
+  if(isClosed){
+    badge.textContent = 'Closed';
+    badge.className = 'r-meta-badge closed';
+  } else {
+    badge.textContent = 'Active';
+    badge.className = 'r-meta-badge active';
+  }
+  document.getElementById('poll-time').textContent = formatTime(POLL.closes_at, isClosed);
+
+  // Decide mode
+  if(isClosed){
+    MODE = 'results';
+  } else if(MY_VOTE === null){
+    MODE = 'vote';
+  } else {
+    MODE = 'results';  // voted, show results (with change option)
+  }
+
+  if(MODE === 'vote'){
+    showVoteMode();
+  } else {
+    showResultsMode(isClosed);
+  }
+}
+
+function showVoteMode(){
+  document.getElementById('voted-banner').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  const list = document.getElementById('options-list');
+  list.style.display = 'flex';
+  list.innerHTML = POLL.options.map((opt, idx) => `
+    <button class="opt ${SELECTED === idx ? 'selected' : ''}" data-idx="${idx}" onclick="selectOption(${idx})">
+      <span class="opt-radio"></span>
+      <span class="opt-label">${escapeHtml(opt)}</span>
+    </button>
+  `).join('');
+
+  const subBar = document.getElementById('sub-bar');
+  const btn = document.getElementById('sub-btn');
+  subBar.classList.add('show');
+  btn.className = 'sub-btn';
+  btn.textContent = 'Submit Vote';
+  btn.disabled = SELECTED === null;
+}
+
+async function showResultsMode(isClosed){
+  document.getElementById('options-list').style.display = 'none';
+
+  // Voted banner (only if I voted and poll is still active)
+  const banner = document.getElementById('voted-banner');
+  if(MY_VOTE !== null && !isClosed){
+    banner.style.display = 'flex';
+    document.getElementById('voted-option').textContent = POLL.options[MY_VOTE] || '—';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Load all votes
+  const allVotes = await loadAllVotes(POLL.id);
+  const total = allVotes.length;
+  const counts = POLL.options.map((_, idx) => allVotes.filter(v => v.option_index === idx).length);
+  const maxCount = Math.max(...counts, 1);
+
+  // Render bars
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results-h').textContent = isClosed ? 'Final Results' : 'Live Results';
+  document.getElementById('total-count').textContent = total;
+
+  const bars = POLL.options.map((opt, idx) => {
+    const c = counts[idx];
+    const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+    const w = total > 0 ? (c / maxCount) * 100 : 0;
+    const isMine = MY_VOTE === idx;
+    return `
+      <div class="bar-row">
+        <div class="bar-row-top">
+          <span class="bar-label ${isMine ? 'you' : ''}">${escapeHtml(opt)}${isMine ? ' ✓' : ''}</span>
+          <span class="bar-pct">${pct}%</span>
+          <span class="bar-cnt">${c}</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill ${isMine ? 'you' : ''}" style="width:${w}%"></div></div>
+      </div>`;
+  }).join('');
+  document.getElementById('bars').innerHTML = bars;
+
+  // Show change button only if active + voted
+  const subBar = document.getElementById('sub-bar');
+  const btn = document.getElementById('sub-btn');
+  if(!isClosed && MY_VOTE !== null){
+    subBar.classList.add('show');
+    btn.className = 'sub-btn sub-btn-secondary';
+    btn.textContent = 'Change My Vote';
+    btn.disabled = false;
+    btn.onclick = onChange;
+  } else {
+    subBar.classList.remove('show');
+  }
+}
+
+function selectOption(idx){
+  SELECTED = idx;
+  document.querySelectorAll('.opt').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('sub-btn').disabled = false;
+}
+
+async function onSubmit(){
+  if(SELECTED === null) return;
+  const btn = document.getElementById('sub-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const sessionId = getSessionId();
+    const body = { poll_id: POLL.id, session_id: sessionId, option_index: SELECTED };
+
+    // Upsert via on_conflict
+    const r = await fetch(SUPABASE_URL + '/rest/v1/poll_votes?on_conflict=poll_id,session_id', {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify(body)
+    });
+    if(!r.ok && r.status !== 201) throw new Error(r.status + ': ' + await r.text());
+
+    MY_VOTE = SELECTED;
+    SELECTED = null;
+    showResultsMode(false);
+  } catch(e) {
+    console.error(e);
+    btn.disabled = false;
+    btn.textContent = 'Submit Vote';
+    alert('Submit failed.\n' + e.message);
+  }
+}
+
+function onChange(){
+  SELECTED = MY_VOTE;
+  showVoteMode();
+  document.getElementById('sub-btn').onclick = onSubmit;
+}
+
+loadPoll();
+</script>
+</body>
+</html>
