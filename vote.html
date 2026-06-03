@@ -31,7 +31,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 }
 
 /* TOP BAR */
-.top-bar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:flex-end;padding:18px 32px;pointer-events:none;}
+.top-bar{display:none;}
 .top-bar > *{pointer-events:auto;}
 .back-btn{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(150,212,40,.55);border:1px solid rgba(150,212,40,.22);padding:7px 18px;border-radius:5px;background:rgba(4,8,2,.72);backdrop-filter:blur(6px);transition:all .2s;text-decoration:none;}
 .back-btn:hover{color:var(--g2);border-color:rgba(150,212,40,.32);}
@@ -146,8 +146,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .sub-btn{padding:13px 18px;font-size:14px;}
 }
 
+
+.wallet-bar .back-btn{flex-shrink:0;}
 /* WALLET BAR */
-.wallet-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;}
+.wallet-action{flex:1;display:flex;justify-content:flex-end;}
+.wallet-action .wallet-disconnected,.wallet-action .wallet-connected{flex:1;}
+.wallet-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .wallet-disconnected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .wallet-msg{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;}
 .wallet-btn{background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.5px;padding:9px 18px;border-radius:7px;cursor:pointer;transition:all .15s;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);text-transform:uppercase;}
@@ -194,18 +198,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="r-edge"></div>
 
     <!-- WALLET BAR -->
-    <div class="wallet-bar" id="wallet-status">
-      <div class="wallet-disconnected">
-        <span class="wallet-msg">Connect your wallet to vote</span>
-        <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
+    <div class="wallet-bar">
+      <a class="back-btn" href="index.html">← Back</a>
+      <div class="wallet-action" id="wallet-status">
+        <div class="wallet-disconnected">
+          <span class="wallet-msg">Connect your wallet to vote</span>
+          <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
+        </div>
       </div>
     </div>
-
-    <div class="top-bar">
-      <a class="back-btn" href="index.html">← Back</a>
-    </div>
-
-    <!-- LOADING -->
+<!-- LOADING -->
     <div class="loading" id="loading">
       <span class="spinner"></span>
       <span>Loading vote...</span>
