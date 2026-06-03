@@ -174,7 +174,38 @@ body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;o
   .btn-icon{width:26px;height:26px;}
   .btn-icon svg{width:24px;height:24px;}
 }
+
+/* WALLET BAR */
+.wallet-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;}
+.wallet-disconnected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.wallet-msg{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;}
+.wallet-btn{background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.5px;padding:9px 18px;border-radius:7px;cursor:pointer;transition:all .15s;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);text-transform:uppercase;}
+.wallet-btn:hover{transform:translateY(-1px);filter:brightness(1.05);}
+.wallet-connected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.wallet-info{display:flex;align-items:center;gap:8px;font-size:12.5px;}
+.wallet-dot{width:8px;height:8px;border-radius:50%;background:#cbed3a;box-shadow:0 0 6px rgba(203,237,58,.6);flex-shrink:0;}
+.wallet-addr{font-family:'Courier New',monospace;color:rgba(255,255,255,.85);font-weight:500;letter-spacing:.2px;}
+.wallet-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.6);font-family:inherit;font-size:10.5px;font-weight:600;letter-spacing:.6px;padding:6px 12px;border-radius:5px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.wallet-btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+@media(max-width:768px){
+  .wallet-bar{padding:11px 18px;}
+  .wallet-msg{font-size:11px;}
+  .wallet-btn{font-size:11px;padding:8px 14px;}
+  .wallet-addr{font-size:11.5px;}
+}
+
 </style>
+
+<script type="importmap">
+{
+  "imports": {
+    "@reown/appkit": "https://esm.sh/@reown/appkit@1.6.5",
+    "@reown/appkit/networks": "https://esm.sh/@reown/appkit@1.6.5/networks",
+    "@reown/appkit-adapter-ethers": "https://esm.sh/@reown/appkit-adapter-ethers@1.6.5",
+    "ethers": "https://esm.sh/ethers@6.13.4"
+  }
+}
+</script>
 </head>
 <body>
 <div class="card">
@@ -194,6 +225,14 @@ body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;o
   <!-- RIGHT: FORM -->
   <div class="right-panel">
     <div class="r-edge"></div>
+
+    <!-- WALLET BAR -->
+    <div class="wallet-bar" id="wallet-status">
+      <div class="wallet-disconnected">
+        <span class="wallet-msg">Connect your wallet to submit</span>
+        <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
+      </div>
+    </div>
 
     <div class="r-body" id="form-wrap">
 
@@ -284,43 +323,190 @@ body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;o
   </div>
 
 </div>
-<script>
-const SUPABASE_URL='https://aejergnmqyiibgkqunxl.supabase.co';
-const SUPABASE_KEY='sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL';
-function getSessionId(){let s=localStorage.getItem('apepe_sid');if(!s){s='sid_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('apepe_sid',s);}return s;}
-function updateChar(){document.getElementById('char-count').textContent=document.getElementById('opinion').value.length+' / 1000';}
-function updateNickChar(){document.getElementById('nick-count').textContent=document.getElementById('nickname').value.length+' / 20';}
-async function submitOpinion(){
-  const op=document.getElementById('opinion').value.trim();
-  if(!op){document.getElementById('opinion').focus();return;}
-  const nickname=document.getElementById('nickname').value.trim();
-  const btn=document.getElementById('sub-btn');
-  btn.disabled=true;
-  const btnTxt=document.getElementById('btn-txt');
-  btnTxt.textContent='SUBMITTING...';
+<script type="module">
+import { createAppKit } from '@reown/appkit'
+import { polygon } from '@reown/appkit/networks'
+import { EthersAdapter } from '@reown/appkit-adapter-ethers'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 
-  try{
-    const body={session_id:getSessionId(),opinion:op};
-    if(nickname) body.nickname=nickname;
-    const r=await fetch(SUPABASE_URL+'/rest/v1/opinions',{
-      method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify(body)
-    });
-    if(r.ok||r.status===201){
-      showSuccess();
-    } else throw new Error(await r.text());
-  }catch(e){
-    console.error(e);
-    btn.disabled=false;
-    btnTxt.textContent='SUBMIT YOUR IDEA';
-    alert('An error occurred.\n'+e.message);
+const SUPABASE_URL = 'https://aejergnmqyiibgkqunxl.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL'
+const REOWN_PROJECT_ID = '70d7b8fa6a04c363b4ac73bfb0c353a8'
+
+const metadata = {
+  name: 'APEPE Community Flow',
+  description: 'Community-driven opinion and voting',
+  url: 'https://apepe.io/communityflow/',
+  icons: ['https://apepe.io/communityflow/images/apepe-logo-bar.jpg']
+}
+
+const modal = createAppKit({
+  adapters: [new EthersAdapter()],
+  networks: [polygon],
+  projectId: REOWN_PROJECT_ID,
+  metadata,
+  features: { analytics: false, email: false, socials: [] }
+})
+
+let currentAccount = null
+let currentProvider = null
+
+function shortAddr(a){ return a.slice(0, 6) + '...' + a.slice(-4) }
+
+function renderConnected(addr){
+  document.getElementById('wallet-status').innerHTML = `
+    <div class="wallet-connected">
+      <div class="wallet-info">
+        <span class="wallet-dot"></span>
+        <span class="wallet-addr">${shortAddr(addr)}</span>
+      </div>
+      <button class="wallet-btn-secondary" id="disconnect-btn" type="button">Disconnect</button>
+    </div>`
+  document.getElementById('disconnect-btn').addEventListener('click', () => modal.disconnect())
+  const sb = document.getElementById('sub-btn')
+  if (sb) sb.disabled = false
+}
+
+function renderDisconnected(){
+  document.getElementById('wallet-status').innerHTML = `
+    <div class="wallet-disconnected">
+      <span class="wallet-msg">Connect your wallet to submit</span>
+      <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
+    </div>`
+  document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+  const sb = document.getElementById('sub-btn')
+  if (sb) sb.disabled = true
+}
+
+// Initial bind
+document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+const subBtnInit = document.getElementById('sub-btn')
+if (subBtnInit) subBtnInit.disabled = true
+
+modal.subscribeAccount((state) => {
+  if (state.isConnected && state.address) {
+    currentAccount = state.address
+    renderConnected(state.address)
+  } else {
+    currentAccount = null
+    currentProvider = null
+    renderDisconnected()
+  }
+})
+
+modal.subscribeProviders((state) => {
+  currentProvider = state['eip155']
+})
+
+// Char counters
+window.updateChar = function(){
+  document.getElementById('char-count').textContent = document.getElementById('opinion').value.length + ' / 1000'
+}
+window.updateNickChar = function(){
+  document.getElementById('nick-count').textContent = document.getElementById('nickname').value.length + ' / 20'
+}
+
+// Submit
+window.submitOpinion = async function(){
+  if (!currentAccount) {
+    alert('Please connect your wallet first.')
+    return
+  }
+  const op = document.getElementById('opinion').value.trim()
+  if (!op) { document.getElementById('opinion').focus(); return }
+  const nickname = document.getElementById('nickname').value.trim()
+  const btn = document.getElementById('sub-btn')
+  const btnTxt = document.getElementById('btn-txt')
+  btn.disabled = true
+  btnTxt.textContent = 'CHECKING...'
+
+  try {
+    // 1. Load settings
+    const settingsRes = await fetch(SUPABASE_URL + '/rest/v1/settings?select=key,value', {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    })
+    if (!settingsRes.ok) throw new Error('Failed to load settings')
+    const arr = await settingsRes.json()
+    const settings = {}
+    arr.forEach(s => settings[s.key] = s.value)
+
+    // 2. Optional token check
+    if (settings.token_check_enabled === 'true') {
+      btnTxt.textContent = 'VERIFYING TOKEN...'
+      const minBal = parseFloat(settings.min_token_balance || '0')
+      const tokenAddr = settings.token_contract_address
+      const decimals = parseInt(settings.token_decimals || '18')
+
+      if (!currentProvider) throw new Error('Wallet provider not ready. Please reconnect.')
+      const provider = new BrowserProvider(currentProvider)
+      const abi = ['function balanceOf(address) view returns (uint256)']
+      const contract = new Contract(tokenAddr, abi, provider)
+      const raw = await contract.balanceOf(currentAccount)
+      const balance = parseFloat(formatUnits(raw, decimals))
+
+      if (balance < minBal) {
+        alert(`Minimum ${minBal} APEPE required to participate.
+Your balance: ${balance.toFixed(2)}`)
+        btn.disabled = false
+        btnTxt.textContent = 'SUBMIT YOUR IDEA'
+        return
+      }
+    }
+
+    // 3. Sign message
+    btnTxt.textContent = 'SIGN IN WALLET...'
+    const timestamp = new Date().toISOString()
+    const message = `APEPE Community Flow — Submit Opinion
+Wallet: ${currentAccount}
+Timestamp: ${timestamp}`
+    if (!currentProvider) throw new Error('Wallet provider not ready. Please reconnect.')
+    const provider = new BrowserProvider(currentProvider)
+    const signer = await provider.getSigner()
+    const signature = await signer.signMessage(message)
+
+    // 4. Save
+    btnTxt.textContent = 'SUBMITTING...'
+    const body = {
+      opinion: op,
+      wallet_address: currentAccount.toLowerCase(),
+      signature: signature,
+      signed_message: message,
+      source: 'direct'
+    }
+    if (nickname) body.nickname = nickname
+
+    const r = await fetch(SUPABASE_URL + '/rest/v1/opinions', {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(body)
+    })
+    if (r.ok || r.status === 201) {
+      showSuccess()
+    } else {
+      throw new Error(await r.text())
+    }
+  } catch (e) {
+    console.error(e)
+    btn.disabled = false
+    btnTxt.textContent = 'SUBMIT YOUR IDEA'
+    if (e.code === 'ACTION_REJECTED' || (e.message || '').includes('rejected')) {
+      alert('Signature was rejected.')
+    } else {
+      alert('Error:
+' + (e.message || e))
+    }
   }
 }
+
 function showSuccess(){
-  document.getElementById('form-wrap').style.display='none';
-  document.getElementById('sub-bar').style.display='none';
-  document.getElementById('success').classList.add('show');
+  document.getElementById('form-wrap').style.display = 'none'
+  document.getElementById('sub-bar').style.display = 'none'
+  document.getElementById('success').classList.add('show')
 }
 </script>
 </body>

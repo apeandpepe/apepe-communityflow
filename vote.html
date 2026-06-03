@@ -145,7 +145,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .sub-bar{padding:12px 20px 16px;}
   .sub-btn{padding:13px 18px;font-size:14px;}
 }
+
+/* WALLET BAR */
+.wallet-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;}
+.wallet-disconnected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.wallet-msg{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;}
+.wallet-btn{background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.5px;padding:9px 18px;border-radius:7px;cursor:pointer;transition:all .15s;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);text-transform:uppercase;}
+.wallet-btn:hover{transform:translateY(-1px);filter:brightness(1.05);}
+.wallet-connected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.wallet-info{display:flex;align-items:center;gap:8px;font-size:12.5px;}
+.wallet-dot{width:8px;height:8px;border-radius:50%;background:#cbed3a;box-shadow:0 0 6px rgba(203,237,58,.6);flex-shrink:0;}
+.wallet-addr{font-family:'Courier New',monospace;color:rgba(255,255,255,.85);font-weight:500;letter-spacing:.2px;}
+.wallet-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.6);font-family:inherit;font-size:10.5px;font-weight:600;letter-spacing:.6px;padding:6px 12px;border-radius:5px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.wallet-btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+@media(max-width:768px){
+  .wallet-bar{padding:11px 18px;}
+  .wallet-msg{font-size:11px;}
+  .wallet-btn{font-size:11px;padding:8px 14px;}
+  .wallet-addr{font-size:11.5px;}
+}
+
 </style>
+
+<script type="importmap">
+{
+  "imports": {
+    "@reown/appkit": "https://esm.sh/@reown/appkit@1.6.5",
+    "@reown/appkit/networks": "https://esm.sh/@reown/appkit@1.6.5/networks",
+    "@reown/appkit-adapter-ethers": "https://esm.sh/@reown/appkit-adapter-ethers@1.6.5",
+    "ethers": "https://esm.sh/ethers@6.13.4"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -161,6 +192,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- RIGHT: VOTE -->
   <div class="right-panel">
     <div class="r-edge"></div>
+
+    <!-- WALLET BAR -->
+    <div class="wallet-bar" id="wallet-status">
+      <div class="wallet-disconnected">
+        <span class="wallet-msg">Connect your wallet to vote</span>
+        <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
+      </div>
+    </div>
 
     <div class="top-bar">
       <a class="back-btn" href="index.html">← Back</a>
@@ -221,194 +260,257 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<script>
-const SUPABASE_URL = 'https://aejergnmqyiibgkqunxl.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL';
+<script type="module">
+import { createAppKit } from '@reown/appkit'
+import { polygon } from '@reown/appkit/networks'
+import { EthersAdapter } from '@reown/appkit-adapter-ethers'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 
-let POLL = null;       // current poll
-let MY_VOTE = null;    // user's vote (option_index), null if not voted
-let MODE = 'vote';     // 'vote' | 'results' | 'change'
-let SELECTED = null;   // selected option index in vote mode
+const SUPABASE_URL = 'https://aejergnmqyiibgkqunxl.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL'
+const REOWN_PROJECT_ID = '70d7b8fa6a04c363b4ac73bfb0c353a8'
 
-function getSessionId(){
-  let s = localStorage.getItem('apepe_sid');
-  if(!s){
-    s = 'sid_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-    localStorage.setItem('apepe_sid', s);
-  }
-  return s;
+const metadata = {
+  name: 'APEPE Community Flow',
+  description: 'Community vote',
+  url: 'https://apepe.io/communityflow/',
+  icons: ['https://apepe.io/communityflow/images/apepe-logo-bar.jpg']
 }
 
+const modal = createAppKit({
+  adapters: [new EthersAdapter()],
+  networks: [polygon],
+  projectId: REOWN_PROJECT_ID,
+  metadata,
+  features: { analytics: false, email: false, socials: [] }
+})
+
+let currentAccount = null
+let currentProvider = null
+let POLL = null
+let MY_VOTE = null
+let MODE = 'vote'
+let SELECTED = null
+
+function shortAddr(a){ return a.slice(0, 6) + '...' + a.slice(-4) }
+
+function renderConnected(addr){
+  document.getElementById('wallet-status').innerHTML = `
+    <div class="wallet-connected">
+      <div class="wallet-info">
+        <span class="wallet-dot"></span>
+        <span class="wallet-addr">${shortAddr(addr)}</span>
+      </div>
+      <button class="wallet-btn-secondary" id="disconnect-btn" type="button">Disconnect</button>
+    </div>`
+  document.getElementById('disconnect-btn').addEventListener('click', () => modal.disconnect())
+}
+
+function renderDisconnected(){
+  document.getElementById('wallet-status').innerHTML = `
+    <div class="wallet-disconnected">
+      <span class="wallet-msg">Connect your wallet to vote</span>
+      <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
+    </div>`
+  document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+}
+
+document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+
+modal.subscribeAccount(async (state) => {
+  if (state.isConnected && state.address) {
+    currentAccount = state.address
+    renderConnected(state.address)
+    // Reload to refresh MY_VOTE for this wallet
+    if (POLL) await reloadMyVote()
+  } else {
+    currentAccount = null
+    currentProvider = null
+    renderDisconnected()
+    MY_VOTE = null
+    if (POLL) {
+      const now = Date.now()
+      const isClosed = !POLL.is_active || new Date(POLL.closes_at).getTime() <= now
+      render(isClosed)
+    }
+  }
+})
+
+modal.subscribeProviders((state) => {
+  currentProvider = state['eip155']
+})
+
 function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(s ?? '').replace(/[&<>"\']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 }
 
 function formatTime(closesAt, isClosed){
-  const d = new Date(closesAt);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
-  const hh = String(d.getHours()).padStart(2,'0');
-  const mi = String(d.getMinutes()).padStart(2,'0');
-  const stamp = `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
-  if(isClosed) return `Closed at ${stamp}`;
-  const diff = d.getTime() - Date.now();
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  if(days > 0) return `Closes in ${days}d ${hours}h`;
-  if(hours > 0) return `Closes in ${hours}h ${mins}m`;
-  if(mins > 0) return `Closes in ${mins}m`;
-  return 'Closing soon';
+  const d = new Date(closesAt)
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth()+1).padStart(2,'0')
+  const dd = String(d.getDate()).padStart(2,'0')
+  const hh = String(d.getHours()).padStart(2,'0')
+  const mi = String(d.getMinutes()).padStart(2,'0')
+  const stamp = `${yyyy}-${mm}-${dd} ${hh}:${mi}`
+  if(isClosed) return `Closed at ${stamp}`
+  const diff = d.getTime() - Date.now()
+  const days = Math.floor(diff / 86400000)
+  const hours = Math.floor((diff % 86400000) / 3600000)
+  const mins = Math.floor((diff % 3600000) / 60000)
+  if(days > 0) return `Closes in ${days}d ${hours}h`
+  if(hours > 0) return `Closes in ${hours}h ${mins}m`
+  if(mins > 0) return `Closes in ${mins}m`
+  return 'Closing soon'
 }
 
 async function loadPoll(){
-  const loading = document.getElementById('loading');
-  const pollView = document.getElementById('poll-view');
-  const emptyView = document.getElementById('empty-view');
-  const subBar = document.getElementById('sub-bar');
+  const loading = document.getElementById('loading')
+  const pollView = document.getElementById('poll-view')
+  const emptyView = document.getElementById('empty-view')
+  const subBar = document.getElementById('sub-bar')
 
-  loading.style.display = 'flex';
-  pollView.style.display = 'none';
-  emptyView.style.display = 'none';
-  subBar.classList.remove('show');
+  loading.style.display = 'flex'
+  pollView.style.display = 'none'
+  emptyView.style.display = 'none'
+  subBar.classList.remove('show')
 
   try {
-    // Get latest poll (active or not — but if no active, we show closed only if it's the latest)
     const r = await fetch(SUPABASE_URL + '/rest/v1/polls?select=*&order=created_at.desc&limit=1', {
       headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-    });
-    if(!r.ok) throw new Error('load failed');
-    const polls = await r.json();
+    })
+    if(!r.ok) throw new Error('load failed')
+    const polls = await r.json()
 
     if(polls.length === 0){
-      loading.style.display = 'none';
-      emptyView.style.display = 'flex';
-      return;
+      loading.style.display = 'none'
+      emptyView.style.display = 'flex'
+      return
     }
 
-    POLL = polls[0];
-    const now = Date.now();
-    const closesAt = new Date(POLL.closes_at).getTime();
-    const isClosed = !POLL.is_active || closesAt <= now;
+    POLL = polls[0]
+    const now = Date.now()
+    const closesAt = new Date(POLL.closes_at).getTime()
+    const isClosed = !POLL.is_active || closesAt <= now
 
-    // If poll is fully closed AND it's the only one, we still show it as final result
-    // If poll is closed and old, still show as empty? — show it as results (final)
-    // Decision: always show the latest poll, with appropriate state
+    MY_VOTE = currentAccount ? await loadMyVote(POLL.id, currentAccount) : null
 
-    // Load user's vote on this poll (if any)
-    MY_VOTE = await loadMyVote(POLL.id);
-
-    loading.style.display = 'none';
-    pollView.style.display = 'block';
-    render(isClosed);
+    loading.style.display = 'none'
+    pollView.style.display = 'block'
+    render(isClosed)
   } catch(e) {
-    console.error(e);
-    loading.style.display = 'none';
-    emptyView.style.display = 'flex';
+    console.error(e)
+    loading.style.display = 'none'
+    emptyView.style.display = 'flex'
   }
 }
 
-async function loadMyVote(pollId){
+async function reloadMyVote(){
+  if (!POLL || !currentAccount) { MY_VOTE = null; return }
+  MY_VOTE = await loadMyVote(POLL.id, currentAccount)
+  const now = Date.now()
+  const isClosed = !POLL.is_active || new Date(POLL.closes_at).getTime() <= now
+  render(isClosed)
+}
+
+async function loadMyVote(pollId, wallet){
   try {
-    const r = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?select=option_index&poll_id=eq.${pollId}&session_id=eq.${encodeURIComponent(getSessionId())}`, {
+    const r = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?select=option_index&poll_id=eq.${pollId}&wallet_address=eq.${encodeURIComponent(wallet.toLowerCase())}`, {
       headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-    });
-    if(!r.ok) return null;
-    const rows = await r.json();
-    return rows.length > 0 ? rows[0].option_index : null;
-  } catch(e) { return null; }
+    })
+    if(!r.ok) return null
+    const rows = await r.json()
+    return rows.length > 0 ? rows[0].option_index : null
+  } catch(e) { return null }
 }
 
 async function loadAllVotes(pollId){
   try {
     const r = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?select=option_index&poll_id=eq.${pollId}`, {
       headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-    });
-    if(!r.ok) return [];
-    return await r.json();
-  } catch(e) { return []; }
+    })
+    if(!r.ok) return []
+    return await r.json()
+  } catch(e) { return [] }
 }
 
 function render(isClosed){
-  // Header
-  document.getElementById('poll-title').textContent = POLL.title || '';
-  document.getElementById('poll-question').textContent = POLL.question || '';
+  document.getElementById('poll-title').textContent = POLL.title || ''
+  document.getElementById('poll-question').textContent = POLL.question || ''
 
-  const badge = document.getElementById('poll-status');
+  const badge = document.getElementById('poll-status')
   if(isClosed){
-    badge.textContent = 'Closed';
-    badge.className = 'r-meta-badge closed';
+    badge.textContent = 'Closed'
+    badge.className = 'r-meta-badge closed'
   } else {
-    badge.textContent = 'Active';
-    badge.className = 'r-meta-badge active';
+    badge.textContent = 'Active'
+    badge.className = 'r-meta-badge active'
   }
-  document.getElementById('poll-time').textContent = formatTime(POLL.closes_at, isClosed);
+  document.getElementById('poll-time').textContent = formatTime(POLL.closes_at, isClosed)
 
-  // Decide mode
   if(isClosed){
-    MODE = 'results';
+    MODE = 'results'
   } else if(MY_VOTE === null){
-    MODE = 'vote';
+    MODE = 'vote'
   } else {
-    MODE = 'results';  // voted, show results (with change option)
+    MODE = 'results'
   }
 
   if(MODE === 'vote'){
-    showVoteMode();
+    showVoteMode()
   } else {
-    showResultsMode(isClosed);
+    showResultsMode(isClosed)
   }
 }
 
 function showVoteMode(){
-  document.getElementById('voted-banner').style.display = 'none';
-  document.getElementById('results').style.display = 'none';
-  const list = document.getElementById('options-list');
-  list.style.display = 'flex';
+  document.getElementById('voted-banner').style.display = 'none'
+  document.getElementById('results').style.display = 'none'
+  const list = document.getElementById('options-list')
+  list.style.display = 'flex'
   list.innerHTML = POLL.options.map((opt, idx) => `
-    <button class="opt ${SELECTED === idx ? 'selected' : ''}" data-idx="${idx}" onclick="selectOption(${idx})">
+    <button class="opt ${SELECTED === idx ? 'selected' : ''}" data-idx="${idx}" type="button">
       <span class="opt-radio"></span>
       <span class="opt-label">${escapeHtml(opt)}</span>
     </button>
-  `).join('');
+  `).join('')
+  list.querySelectorAll('.opt').forEach(el => {
+    el.addEventListener('click', () => selectOption(parseInt(el.dataset.idx)))
+  })
 
-  const subBar = document.getElementById('sub-bar');
-  const btn = document.getElementById('sub-btn');
-  subBar.classList.add('show');
-  btn.className = 'sub-btn';
-  btn.textContent = 'Submit Vote';
-  btn.disabled = SELECTED === null;
+  const subBar = document.getElementById('sub-bar')
+  const btn = document.getElementById('sub-btn')
+  subBar.classList.add('show')
+  btn.className = 'sub-btn'
+  btn.textContent = 'Submit Vote'
+  btn.onclick = onSubmit
+  btn.disabled = SELECTED === null || !currentAccount
 }
 
 async function showResultsMode(isClosed){
-  document.getElementById('options-list').style.display = 'none';
+  document.getElementById('options-list').style.display = 'none'
 
-  // Voted banner (only if I voted and poll is still active)
-  const banner = document.getElementById('voted-banner');
+  const banner = document.getElementById('voted-banner')
   if(MY_VOTE !== null && !isClosed){
-    banner.style.display = 'flex';
-    document.getElementById('voted-option').textContent = POLL.options[MY_VOTE] || '—';
+    banner.style.display = 'flex'
+    document.getElementById('voted-option').textContent = POLL.options[MY_VOTE] || '—'
   } else {
-    banner.style.display = 'none';
+    banner.style.display = 'none'
   }
 
-  // Load all votes
-  const allVotes = await loadAllVotes(POLL.id);
-  const total = allVotes.length;
-  const counts = POLL.options.map((_, idx) => allVotes.filter(v => v.option_index === idx).length);
-  const maxCount = Math.max(...counts, 1);
+  const allVotes = await loadAllVotes(POLL.id)
+  const total = allVotes.length
+  const counts = POLL.options.map((_, idx) => allVotes.filter(v => v.option_index === idx).length)
+  const maxCount = Math.max(...counts, 1)
 
-  // Render bars
-  document.getElementById('results').style.display = 'block';
-  document.getElementById('results-h').textContent = isClosed ? 'Final Results' : 'Live Results';
-  document.getElementById('total-count').textContent = total;
+  document.getElementById('results').style.display = 'block'
+  document.getElementById('results-h').textContent = isClosed ? 'Final Results' : 'Live Results'
+  document.getElementById('total-count').textContent = total
 
   const bars = POLL.options.map((opt, idx) => {
-    const c = counts[idx];
-    const pct = total > 0 ? Math.round((c / total) * 100) : 0;
-    const w = total > 0 ? (c / maxCount) * 100 : 0;
-    const isMine = MY_VOTE === idx;
+    const c = counts[idx]
+    const pct = total > 0 ? Math.round((c / total) * 100) : 0
+    const w = total > 0 ? (c / maxCount) * 100 : 0
+    const isMine = MY_VOTE === idx
     return `
       <div class="bar-row">
         <div class="bar-row-top">
@@ -417,73 +519,148 @@ async function showResultsMode(isClosed){
           <span class="bar-cnt">${c}</span>
         </div>
         <div class="bar-track"><div class="bar-fill ${isMine ? 'you' : ''}" style="width:${w}%"></div></div>
-      </div>`;
-  }).join('');
-  document.getElementById('bars').innerHTML = bars;
+      </div>`
+  }).join('')
+  document.getElementById('bars').innerHTML = bars
 
-  // Show change button only if active + voted
-  const subBar = document.getElementById('sub-bar');
-  const btn = document.getElementById('sub-btn');
+  const subBar = document.getElementById('sub-bar')
+  const btn = document.getElementById('sub-btn')
   if(!isClosed && MY_VOTE !== null){
-    subBar.classList.add('show');
-    btn.className = 'sub-btn sub-btn-secondary';
-    btn.textContent = 'Change My Vote';
-    btn.disabled = false;
-    btn.onclick = onChange;
+    subBar.classList.add('show')
+    btn.className = 'sub-btn sub-btn-secondary'
+    btn.textContent = 'Change My Vote'
+    btn.disabled = false
+    btn.onclick = onChange
   } else {
-    subBar.classList.remove('show');
+    subBar.classList.remove('show')
   }
 }
 
 function selectOption(idx){
-  SELECTED = idx;
+  SELECTED = idx
   document.querySelectorAll('.opt').forEach((el, i) => {
-    el.classList.toggle('selected', i === idx);
-  });
-  document.getElementById('sub-btn').disabled = false;
+    el.classList.toggle('selected', i === idx)
+  })
+  document.getElementById('sub-btn').disabled = !currentAccount
 }
 
 async function onSubmit(){
-  if(SELECTED === null) return;
-  const btn = document.getElementById('sub-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
+  if (!currentAccount) { alert('Please connect your wallet first.'); return }
+  if (SELECTED === null) return
+  const btn = document.getElementById('sub-btn')
+  btn.disabled = true
+  btn.textContent = 'CHECKING...'
 
   try {
-    const sessionId = getSessionId();
-    const body = { poll_id: POLL.id, session_id: sessionId, option_index: SELECTED };
+    // Settings
+    const sr = await fetch(SUPABASE_URL + '/rest/v1/settings?select=key,value', {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    })
+    const arr = await sr.json()
+    const settings = {}
+    arr.forEach(s => settings[s.key] = s.value)
 
-    // Upsert via on_conflict
-    const r = await fetch(SUPABASE_URL + '/rest/v1/poll_votes?on_conflict=poll_id,session_id', {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=minimal'
-      },
-      body: JSON.stringify(body)
-    });
-    if(!r.ok && r.status !== 201) throw new Error(r.status + ': ' + await r.text());
+    // Token check
+    if (settings.token_check_enabled === 'true') {
+      btn.textContent = 'VERIFYING TOKEN...'
+      const minBal = parseFloat(settings.min_token_balance || '0')
+      const tokenAddr = settings.token_contract_address
+      const decimals = parseInt(settings.token_decimals || '18')
+      if (!currentProvider) throw new Error('Wallet provider not ready. Please reconnect.')
+      const provider = new BrowserProvider(currentProvider)
+      const abi = ['function balanceOf(address) view returns (uint256)']
+      const contract = new Contract(tokenAddr, abi, provider)
+      const raw = await contract.balanceOf(currentAccount)
+      const balance = parseFloat(formatUnits(raw, decimals))
+      if (balance < minBal) {
+        alert(`Minimum ${minBal} APEPE required.
+Your balance: ${balance.toFixed(2)}`)
+        btn.disabled = false
+        btn.textContent = 'Submit Vote'
+        return
+      }
+    }
 
-    MY_VOTE = SELECTED;
-    SELECTED = null;
-    showResultsMode(false);
+    // Sign
+    btn.textContent = 'SIGN IN WALLET...'
+    const timestamp = new Date().toISOString()
+    const message = `APEPE Community Flow — Vote
+Poll: ${POLL.id} — ${POLL.title}
+Choice: ${POLL.options[SELECTED]}
+Wallet: ${currentAccount}
+Timestamp: ${timestamp}`
+    if (!currentProvider) throw new Error('Wallet provider not ready.')
+    const provider = new BrowserProvider(currentProvider)
+    const signer = await provider.getSigner()
+    const signature = await signer.signMessage(message)
+
+    // Check if already voted (to UPDATE or INSERT)
+    btn.textContent = 'SUBMITTING...'
+    const wallet = currentAccount.toLowerCase()
+    const existing = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?select=id&poll_id=eq.${POLL.id}&wallet_address=eq.${encodeURIComponent(wallet)}`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+    })
+    const existRows = await existing.json()
+
+    const body = {
+      option_index: SELECTED,
+      wallet_address: wallet,
+      signature: signature,
+      signed_message: message,
+      source: 'direct'
+    }
+
+    let r
+    if (existRows.length > 0) {
+      r = await fetch(SUPABASE_URL + `/rest/v1/poll_votes?id=eq.${existRows[0].id}`, {
+        method: 'PATCH',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(body)
+      })
+    } else {
+      body.poll_id = POLL.id
+      body.session_id = 'wallet:' + wallet
+      r = await fetch(SUPABASE_URL + '/rest/v1/poll_votes', {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(body)
+      })
+    }
+
+    if (!r.ok && r.status !== 201 && r.status !== 204) throw new Error(r.status + ': ' + await r.text())
+
+    MY_VOTE = SELECTED
+    SELECTED = null
+    showResultsMode(false)
   } catch(e) {
-    console.error(e);
-    btn.disabled = false;
-    btn.textContent = 'Submit Vote';
-    alert('Submit failed.\n' + e.message);
+    console.error(e)
+    btn.disabled = false
+    btn.textContent = 'Submit Vote'
+    if (e.code === 'ACTION_REJECTED' || (e.message || '').includes('rejected')) {
+      alert('Signature was rejected.')
+    } else {
+      alert('Error:
+' + (e.message || e))
+    }
   }
 }
 
 function onChange(){
-  SELECTED = MY_VOTE;
-  showVoteMode();
-  document.getElementById('sub-btn').onclick = onSubmit;
+  SELECTED = MY_VOTE
+  showVoteMode()
 }
 
-loadPoll();
+loadPoll()
 </script>
 </body>
 </html>
