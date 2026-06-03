@@ -170,6 +170,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .wallet-addr{font-size:11.5px;}
 }
 
+
+/* COUNTDOWN BOX (Upcoming) */
+.countdown-box{background:linear-gradient(180deg,#181818 0%,#0c0c0c 100%);border:1px solid rgba(232,170,90,.25);border-radius:14px;padding:32px 24px 28px;margin:0 0 16px;text-align:center;position:relative;overflow:hidden;}
+.countdown-box::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,#e8aa5a,transparent);opacity:.6;}
+.countdown-lock{display:inline-flex;align-items:center;gap:6px;background:rgba(232,170,90,.1);color:#e8aa5a;border:1px solid rgba(232,170,90,.3);border-radius:20px;padding:5px 13px;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:18px;}
+.countdown-lock::before{content:'🔒';font-size:11px;}
+.countdown-h{font-size:13px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;}
+.countdown-clock{display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.countdown-unit{background:#0a0a0a;border:1px solid rgba(232,170,90,.2);border-radius:10px;min-width:74px;padding:14px 8px 9px;display:flex;flex-direction:column;align-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 2px 8px rgba(0,0,0,.4);}
+.countdown-num{font-family:'Courier New',monospace;font-size:34px;font-weight:800;color:#e8aa5a;line-height:1;letter-spacing:1px;text-shadow:0 0 20px rgba(232,170,90,.4);}
+.countdown-lbl{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+.countdown-time{font-size:11.5px;color:rgba(255,255,255,.4);font-family:'Courier New',monospace;letter-spacing:.5px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);}
+.countdown-time-label{color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;font-size:9.5px;margin-bottom:3px;}
+
+@media(max-width:768px){
+  .countdown-box{padding:24px 16px 20px;}
+  .countdown-h{font-size:11px;letter-spacing:2px;}
+  .countdown-clock{gap:7px;}
+  .countdown-unit{min-width:62px;padding:11px 6px 7px;}
+  .countdown-num{font-size:27px;}
+  .countdown-lbl{font-size:8.5px;}
+}
+
 </style>
 
 </head>
@@ -505,14 +528,35 @@ function render(state){
 function showUpcomingMode(){
   document.getElementById('voted-banner').style.display = 'none'
   document.getElementById('results').style.display = 'none'
+
+  // Replace options list with countdown box
   const list = document.getElementById('options-list')
-  list.style.display = 'flex'
-  list.innerHTML = POLL.options.map((opt) => `
-    <button class="opt" disabled type="button" style="opacity:.5;cursor:not-allowed;">
-      <span class="opt-radio"></span>
-      <span class="opt-label">${escapeHtml(opt)}</span>
-    </button>
-  `).join('')
+  list.style.display = 'block'
+  const opensAt = new Date(POLL.opens_at)
+  const yyyy = opensAt.getFullYear()
+  const mm = String(opensAt.getMonth()+1).padStart(2,'0')
+  const dd = String(opensAt.getDate()).padStart(2,'0')
+  const hh = String(opensAt.getHours()).padStart(2,'0')
+  const mi = String(opensAt.getMinutes()).padStart(2,'0')
+  const stamp = `${yyyy}-${mm}-${dd} ${hh}:${mi}`
+
+  list.innerHTML = `
+    <div class="countdown-box">
+      <span class="countdown-lock">Voting Not Started</span>
+      <div class="countdown-h">Voting Opens In</div>
+      <div class="countdown-clock" id="cd-clock">
+        <div class="countdown-unit"><div class="countdown-num" id="cd-d">--</div><div class="countdown-lbl">Days</div></div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-h">--</div><div class="countdown-lbl">Hours</div></div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-m">--</div><div class="countdown-lbl">Minutes</div></div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-s">--</div><div class="countdown-lbl">Seconds</div></div>
+      </div>
+      <div class="countdown-time">
+        <div class="countdown-time-label">Starts at</div>
+        ${stamp}
+      </div>
+    </div>
+  `
+  tickCountdown()
 
   const subBar = document.getElementById('sub-bar')
   const btn = document.getElementById('sub-btn')
@@ -523,7 +567,36 @@ function showUpcomingMode(){
   btn.onclick = null
 }
 
+function tickCountdown(){
+  if(!POLL) return
+  const opensAt = new Date(POLL.opens_at).getTime()
+  const diff = opensAt - Date.now()
+  if(diff <= 0){
+    // Time reached — reload to switch to active mode
+    if(window._cdTick) { clearInterval(window._cdTick); window._cdTick = null }
+    loadPoll()
+    return
+  }
+  const days = Math.floor(diff / 86400000)
+  const hours = Math.floor((diff % 86400000) / 3600000)
+  const mins = Math.floor((diff % 3600000) / 60000)
+  const secs = Math.floor((diff % 60000) / 1000)
+  const d = document.getElementById('cd-d')
+  const h = document.getElementById('cd-h')
+  const m = document.getElementById('cd-m')
+  const s = document.getElementById('cd-s')
+  if(d) d.textContent = String(days).padStart(2,'0')
+  if(h) h.textContent = String(hours).padStart(2,'0')
+  if(m) m.textContent = String(mins).padStart(2,'0')
+  if(s) s.textContent = String(secs).padStart(2,'0')
+
+  if(!window._cdTick){
+    window._cdTick = setInterval(tickCountdown, 1000)
+  }
+}
+
 function showVoteMode(){
+  if(window._cdTick) { clearInterval(window._cdTick); window._cdTick = null }
   document.getElementById('voted-banner').style.display = 'none'
   document.getElementById('results').style.display = 'none'
   const list = document.getElementById('options-list')
@@ -548,6 +621,7 @@ function showVoteMode(){
 }
 
 async function showResultsMode(isClosed){
+  if(window._cdTick) { clearInterval(window._cdTick); window._cdTick = null }
   document.getElementById('options-list').style.display = 'none'
 
   const banner = document.getElementById('voted-banner')
