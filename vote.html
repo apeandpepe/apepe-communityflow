@@ -68,6 +68,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .r-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.5);flex-wrap:wrap;}
 .r-meta-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
 .r-meta-badge.active{background:rgba(203,237,58,.12);color:#cbed3a;border:1px solid rgba(203,237,58,.3);}
+.r-meta-badge.upcoming{background:rgba(232,170,90,.15);color:#e8aa5a;border-color:rgba(232,170,90,.4);}
 .r-meta-badge.closed{background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);}
 .r-divider{height:1px;background:rgba(255,255,255,.06);margin:18px 0 22px;}
 
@@ -337,23 +338,25 @@ function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"\']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 }
 
-function formatTime(closesAt, isClosed){
-  const d = new Date(closesAt)
+function formatTime(targetAt, mode){
+  // mode: 'closed' | 'closing' | 'opening'
+  const d = new Date(targetAt)
   const yyyy = d.getFullYear()
   const mm = String(d.getMonth()+1).padStart(2,'0')
   const dd = String(d.getDate()).padStart(2,'0')
   const hh = String(d.getHours()).padStart(2,'0')
   const mi = String(d.getMinutes()).padStart(2,'0')
   const stamp = `${yyyy}-${mm}-${dd} ${hh}:${mi}`
-  if(isClosed) return `Closed at ${stamp}`
+  if(mode === 'closed') return `Closed at ${stamp}`
   const diff = d.getTime() - Date.now()
   const days = Math.floor(diff / 86400000)
   const hours = Math.floor((diff % 86400000) / 3600000)
   const mins = Math.floor((diff % 3600000) / 60000)
-  if(days > 0) return `Closes in ${days}d ${hours}h`
-  if(hours > 0) return `Closes in ${hours}h ${mins}m`
-  if(mins > 0) return `Closes in ${mins}m`
-  return 'Closing soon'
+  const prefix = mode === 'opening' ? 'Opens' : 'Closes'
+  if(days > 0) return `${prefix} in ${days}d ${hours}h`
+  if(hours > 0) return `${prefix} in ${hours}h ${mins}m`
+  if(mins > 0) return `${prefix} in ${mins}m`
+  return mode === 'opening' ? 'Opening soon' : 'Closing soon'
 }
 
 async function loadPoll(){
@@ -383,17 +386,44 @@ async function loadPoll(){
     POLL = polls[0]
     const now = Date.now()
     const closesAt = new Date(POLL.closes_at).getTime()
+    const opensAt = POLL.opens_at ? new Date(POLL.opens_at).getTime() : new Date(POLL.created_at).getTime()
+    const isUpcoming = POLL.is_active && opensAt > now
     const isClosed = !POLL.is_active || closesAt <= now
 
     MY_VOTE = currentAccount ? await loadMyVote(POLL.id, currentAccount) : null
 
     loading.style.display = 'none'
     pollView.style.display = 'block'
-    render(isClosed)
+    render({ isUpcoming, isClosed })
   } catch(e) {
     console.error(e)
     loading.style.display = 'none'
     emptyView.style.display = 'flex'
+  }
+  // refresh countdown every 30s
+  if(!window._cdTimer){
+    window._cdTimer = setInterval(refreshCountdown, 30000)
+  }
+}
+
+function refreshCountdown(){
+  if(!POLL) return
+  const now = Date.now()
+  const opensAt = POLL.opens_at ? new Date(POLL.opens_at).getTime() : new Date(POLL.created_at).getTime()
+  const isUpcoming = POLL.is_active && opensAt > now
+  const isClosed = !POLL.is_active || new Date(POLL.closes_at).getTime() <= now
+  const timeEl = document.getElementById('poll-time')
+  if(!timeEl) return
+  if(isUpcoming){
+    timeEl.textContent = formatTime(POLL.opens_at, 'opening')
+  } else if(isClosed){
+    timeEl.textContent = formatTime(POLL.closes_at, 'closed')
+    // mode transition — reload everything
+    if(MODE === 'upcoming' || MODE === 'vote') loadPoll()
+  } else {
+    timeEl.textContent = formatTime(POLL.closes_at, 'closing')
+    // upcoming → active transition
+    if(MODE === 'upcoming') loadPoll()
   }
 }
 
@@ -401,8 +431,10 @@ async function reloadMyVote(){
   if (!POLL || !currentAccount) { MY_VOTE = null; return }
   MY_VOTE = await loadMyVote(POLL.id, currentAccount)
   const now = Date.now()
+  const opensAt = POLL.opens_at ? new Date(POLL.opens_at).getTime() : new Date(POLL.created_at).getTime()
+  const isUpcoming = POLL.is_active && opensAt > now
   const isClosed = !POLL.is_active || new Date(POLL.closes_at).getTime() <= now
-  render(isClosed)
+  render({ isUpcoming, isClosed })
 }
 
 async function loadMyVote(pollId, wallet){
@@ -426,21 +458,34 @@ async function loadAllVotes(pollId){
   } catch(e) { return [] }
 }
 
-function render(isClosed){
+function render(state){
+  const { isUpcoming, isClosed } = state
   document.getElementById('poll-title').textContent = POLL.title || ''
   document.getElementById('poll-question').textContent = POLL.question || ''
 
   const badge = document.getElementById('poll-status')
-  if(isClosed){
+  if(isUpcoming){
+    badge.textContent = 'Upcoming'
+    badge.className = 'r-meta-badge upcoming'
+  } else if(isClosed){
     badge.textContent = 'Closed'
     badge.className = 'r-meta-badge closed'
   } else {
     badge.textContent = 'Active'
     badge.className = 'r-meta-badge active'
   }
-  document.getElementById('poll-time').textContent = formatTime(POLL.closes_at, isClosed)
 
-  if(isClosed){
+  if(isUpcoming){
+    document.getElementById('poll-time').textContent = formatTime(POLL.opens_at, 'opening')
+  } else if(isClosed){
+    document.getElementById('poll-time').textContent = formatTime(POLL.closes_at, 'closed')
+  } else {
+    document.getElementById('poll-time').textContent = formatTime(POLL.closes_at, 'closing')
+  }
+
+  if(isUpcoming){
+    MODE = 'upcoming'
+  } else if(isClosed){
     MODE = 'results'
   } else if(MY_VOTE === null){
     MODE = 'vote'
@@ -448,11 +493,34 @@ function render(isClosed){
     MODE = 'results'
   }
 
-  if(MODE === 'vote'){
+  if(MODE === 'upcoming'){
+    showUpcomingMode()
+  } else if(MODE === 'vote'){
     showVoteMode()
   } else {
     showResultsMode(isClosed)
   }
+}
+
+function showUpcomingMode(){
+  document.getElementById('voted-banner').style.display = 'none'
+  document.getElementById('results').style.display = 'none'
+  const list = document.getElementById('options-list')
+  list.style.display = 'flex'
+  list.innerHTML = POLL.options.map((opt) => `
+    <button class="opt" disabled type="button" style="opacity:.5;cursor:not-allowed;">
+      <span class="opt-radio"></span>
+      <span class="opt-label">${escapeHtml(opt)}</span>
+    </button>
+  `).join('')
+
+  const subBar = document.getElementById('sub-bar')
+  const btn = document.getElementById('sub-btn')
+  subBar.classList.add('show')
+  btn.className = 'sub-btn'
+  btn.textContent = 'Voting Has Not Started'
+  btn.disabled = true
+  btn.onclick = null
 }
 
 function showVoteMode(){
