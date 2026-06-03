@@ -438,8 +438,7 @@ window.submitOpinion = async function(){
       const balance = parseFloat(formatUnits(raw, decimals))
 
       if (balance < minBal) {
-        alert(`Minimum ${minBal} APEPE required to participate.
-Your balance: ${balance.toFixed(2)}`)
+        alert(`Minimum ${minBal} APEPE required to participate. Your balance: ${balance.toFixed(2)}`)
         btn.disabled = false
         btnTxt.textContent = 'SUBMIT YOUR IDEA'
         return
@@ -490,8 +489,7 @@ Timestamp: ${timestamp}`
     if (e.code === 'ACTION_REJECTED' || (e.message || '').includes('rejected')) {
       alert('Signature was rejected.')
     } else {
-      alert('Error:
-' + (e.message || e))
+      alert('Error: ' + (e.message || e))
     }
   }
 }

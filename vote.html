@@ -566,8 +566,7 @@ async function onSubmit(){
       const raw = await contract.balanceOf(currentAccount)
       const balance = parseFloat(formatUnits(raw, decimals))
       if (balance < minBal) {
-        alert(`Minimum ${minBal} APEPE required.
-Your balance: ${balance.toFixed(2)}`)
+        alert(`Minimum ${minBal} APEPE required. Your balance: ${balance.toFixed(2)}`)
         btn.disabled = false
         btn.textContent = 'Submit Vote'
         return
@@ -642,8 +641,7 @@ Timestamp: ${timestamp}`
     if (e.code === 'ACTION_REJECTED' || (e.message || '').includes('rejected')) {
       alert('Signature was rejected.')
     } else {
-      alert('Error:
-' + (e.message || e))
+      alert('Error: ' + (e.message || e))
     }
   }
 }
