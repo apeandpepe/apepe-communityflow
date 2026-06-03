@@ -171,16 +171,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 </style>
 
-<script type="importmap">
-{
-  "imports": {
-    "@reown/appkit": "https://esm.sh/@reown/appkit@1.6.5",
-    "@reown/appkit/networks": "https://esm.sh/@reown/appkit@1.6.5/networks",
-    "@reown/appkit-adapter-ethers": "https://esm.sh/@reown/appkit-adapter-ethers@1.6.5",
-    "ethers": "https://esm.sh/ethers@6.13.4"
-  }
-}
-</script>
 </head>
 <body>
 
@@ -286,6 +276,7 @@ const modal = createAppKit({
   metadata,
   features: { analytics: false, email: false, socials: [] }
 })
+console.log('[APEPE] modal created:', modal)
 
 let currentAccount = null
 let currentProvider = null
@@ -314,10 +305,10 @@ function renderDisconnected(){
       <span class="wallet-msg">Connect your wallet to vote</span>
       <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
     </div>`
-  document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+  document.getElementById('connect-btn').addEventListener('click', () => { console.log('[APEPE] connect clicked'); modal.open() })
 }
 
-document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+document.getElementById('connect-btn').addEventListener('click', () => { console.log('[APEPE] connect clicked'); modal.open() })
 
 modal.subscribeAccount(async (state) => {
   if (state.isConnected && state.address) {

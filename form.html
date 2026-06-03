@@ -200,16 +200,6 @@ body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;o
 
 </style>
 
-<script type="importmap">
-{
-  "imports": {
-    "@reown/appkit": "https://esm.sh/@reown/appkit@1.6.5",
-    "@reown/appkit/networks": "https://esm.sh/@reown/appkit@1.6.5/networks",
-    "@reown/appkit-adapter-ethers": "https://esm.sh/@reown/appkit-adapter-ethers@1.6.5",
-    "ethers": "https://esm.sh/ethers@6.13.4"
-  }
-}
-</script>
 </head>
 <body>
 <div class="card">
@@ -349,6 +339,7 @@ const modal = createAppKit({
   metadata,
   features: { analytics: false, email: false, socials: [] }
 })
+console.log('[APEPE] modal created:', modal)
 
 let currentAccount = null
 let currentProvider = null
@@ -375,13 +366,13 @@ function renderDisconnected(){
       <span class="wallet-msg">Connect your wallet to submit</span>
       <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
     </div>`
-  document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+  document.getElementById('connect-btn').addEventListener('click', () => { console.log('[APEPE] connect clicked'); modal.open() })
   const sb = document.getElementById('sub-btn')
   if (sb) sb.disabled = true
 }
 
 // Initial bind
-document.getElementById('connect-btn').addEventListener('click', () => modal.open())
+document.getElementById('connect-btn').addEventListener('click', () => { console.log('[APEPE] connect clicked'); modal.open() })
 const subBtnInit = document.getElementById('sub-btn')
 if (subBtnInit) subBtnInit.disabled = true
 
