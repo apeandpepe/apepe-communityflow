@@ -8,204 +8,118 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{height:100%;}
-body{background:#182206;font-family:'Barlow',sans-serif;color:#c8e090;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-a{text-decoration:none;color:inherit;}
-:root{--g:#96d428;--g2:#b4e840;--g3:#d0f060;--glow:rgba(150,212,40,.6);--text:#f2fcd8;--muted:rgba(150,200,64,.5);}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#0a0a0a;color:#fff;font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
+body{padding:24px;display:flex;justify-content:center;align-items:flex-start;}
+.card{width:100%;max-width:1280px;display:grid;grid-template-columns:1fr 1fr;gap:0;background:#111;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.06);box-shadow:0 30px 80px rgba(0,0,0,.55);position:relative;}
 
-body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
+.img-panel{background:#0a1402;position:relative;display:flex;align-items:center;justify-content:center;min-height:600px;overflow:hidden;}
+.hero-img{width:100%;height:100%;object-fit:cover;display:block;}
+.img-fallback{display:none;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-align:center;}
+.fb-txt{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;}
 
-@keyframes glow-pulse{0%,100%{box-shadow:0 0 10px var(--glow),0 0 22px rgba(150,212,40,.35);}50%{box-shadow:0 0 4px rgba(150,212,40,.22);}}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px) rotate(3deg);}}
-@keyframes spin{to{transform:rotate(360deg);}}
+.right-panel{display:flex;flex-direction:column;background:#0e0e0e;position:relative;}
+.r-edge{position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(203,237,58,.18),transparent);}
 
-/* CARD FRAME */
-.card{
-  width:100%;max-width:1280px;
-  height:calc(100vh - 40px);max-height:820px;
-  border-radius:20px;overflow:hidden;
-  display:grid;grid-template-columns:1fr 1fr;
-  background:linear-gradient(155deg,#121c08 0%,#0d1505 55%,#081003 100%);
-  box-shadow:
-    0 0 0 1.5px rgba(150,212,40,.48),
-    0 0 0 3px rgba(0,0,0,.9),
-    0 0 0 4px rgba(150,212,40,.1),
-    0 50px 120px rgba(0,0,0,.92),
-    0 0 80px rgba(150,212,40,.07);
-  position:relative;
-}
-.card::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(150,212,40,.022) 1px,transparent 1px);background-size:26px 26px;}
+/* AUTH BAR */
+.auth-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.7px;padding:7px 14px;border-radius:5px;cursor:pointer;text-transform:uppercase;text-decoration:none;flex-shrink:0;}
+.back-btn:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+.auth-action{flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px;}
 
-/* top bar floats above both panels */
-.top-bar{display:none;}
-.top-bar > *{pointer-events:auto;}
-.back-btn{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:700;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(150,212,40,.55);border:1px solid rgba(150,212,40,.22);padding:7px 18px;border-radius:5px;background:rgba(4,8,2,.72);backdrop-filter:blur(6px);transition:all .2s;}
-.back-btn:hover{color:var(--g2);border-color:rgba(150,212,40,.32);}
+.auth-msg{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;margin-right:6px;}
+.auth-btn{background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:700;font-size:11.5px;letter-spacing:.5px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:all .15s;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);text-transform:uppercase;}
+.auth-btn:hover{transform:translateY(-1px);filter:brightness(1.05);}
+.auth-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.75);font-family:inherit;font-weight:600;font-size:11px;letter-spacing:.6px;padding:7px 13px;border-radius:5px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.auth-btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+.auth-user{display:flex;align-items:center;gap:8px;font-size:12.5px;}
+.auth-dot{width:8px;height:8px;border-radius:50%;background:#cbed3a;box-shadow:0 0 6px rgba(203,237,58,.6);flex-shrink:0;}
+.auth-nick{color:rgba(255,255,255,.9);font-weight:600;letter-spacing:.2px;}
 
-/* LEFT IMAGE */
-.img-panel{position:relative;overflow:hidden;background:#030802;}
-.hero-img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
-.img-fallback{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#060e02;}
-.fb-txt{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(150,212,40,.2);border:1px dashed rgba(150,212,40,.12);padding:8px 18px;border-radius:4px;}
+/* AUTH MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.show{display:flex;}
+.modal{background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px;width:100%;max-width:380px;}
+.modal-h{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#fff;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:20px;line-height:1.55;}
+.modal-field{margin-bottom:13px;}
+.modal-label{display:block;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;}
+.modal-input{width:100%;background:#222;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:10px 13px;font-family:inherit;font-size:14px;color:#fff;outline:none;}
+.modal-input:focus{border-color:rgba(255,255,255,.25);background:#252525;}
+.modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:18px;}
+.modal-btn{width:100%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.7px;padding:13px;border-radius:8px;cursor:pointer;text-transform:uppercase;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);}
+.modal-btn:hover:not(:disabled){filter:brightness(1.05);}
+.modal-btn:disabled{opacity:.5;cursor:not-allowed;}
+.modal-link{text-align:center;font-size:12.5px;color:rgba(255,255,255,.55);margin-top:6px;}
+.modal-link a{color:#cbed3a;cursor:pointer;text-decoration:none;font-weight:600;}
+.modal-link a:hover{text-decoration:underline;}
+.modal-close{position:absolute;background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:20px;line-height:1;padding:6px;}
+.modal-error{background:rgba(232,90,90,.1);border:1px solid rgba(232,90,90,.3);border-radius:6px;padding:9px 12px;color:#e85a5a;font-size:12px;margin-top:10px;display:none;}
+.modal-error.show{display:block;}
 
-/* RIGHT PANEL */
-.right-panel{
-  position:relative;z-index:1;
-  background:#131313;
-  border-left:1px solid rgba(255,255,255,.06);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.right-panel::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,.012) 1px,transparent 1px);background-size:24px 24px;}
-.r-edge{height:1px;flex-shrink:0;background:rgba(255,255,255,.06);}
+.r-body{padding:36px 32px 24px;flex:1;overflow-y:auto;}
+.r-head{margin-bottom:20px;}
+.r-tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#cbed3a;border:1px solid rgba(203,237,58,.4);padding:4px 11px;border-radius:4px;margin-bottom:14px;}
+.r-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1.08;margin-bottom:8px;text-transform:uppercase;}
+.r-sub{font-size:14px;color:rgba(255,255,255,.6);line-height:1.55;}
+.r-divider{height:1px;background:rgba(255,255,255,.07);margin:20px 0;}
 
-.r-body{position:relative;z-index:2;flex:1;overflow-y:auto;padding:28px 28px 18px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;}
-.r-body::-webkit-scrollbar{width:3px;}
-.r-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+.examples-box{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:16px;margin-bottom:18px;}
+.examples-h{display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#cbed3a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:11px;}
+.examples-h-sub{color:rgba(255,255,255,.4);font-size:10.5px;font-weight:600;letter-spacing:1.2px;}
+.examples-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.ex-item{background:#0e0e0e;border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:9px 8px;text-align:left;}
+.ex-icon{font-size:14px;margin-bottom:4px;}
+.ex-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:.2px;}
+.ex-tag{font-size:9.5px;color:rgba(255,255,255,.45);font-weight:600;letter-spacing:.6px;margin-bottom:6px;text-transform:uppercase;}
+.ex-desc{font-size:10.5px;color:rgba(255,255,255,.55);line-height:1.4;margin-top:4px;}
 
-/* HEAD */
-.r-head{margin-bottom:0;}
-.r-eyebrow{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500;font-size:14px;letter-spacing:0;color:rgba(255,255,255,.5);margin-bottom:6px;}
-.r-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;font-size:30px;line-height:1.22;color:#ffffff;letter-spacing:-.4px;margin-bottom:14px;}
-.r-sub{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:400;color:rgba(255,255,255,.48);line-height:1.55;}
-.r-divider{height:1px;background:rgba(255,255,255,.06);margin:18px 0 18px;}
+.field-box{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:16px;margin-bottom:14px;}
+.field-h{display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.field-h-sub{color:rgba(255,255,255,.4);font-size:10.5px;font-weight:600;letter-spacing:1.2px;}
+.field-desc{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:11px;}
+.field-input{width:100%;background:#0e0e0e;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px 13px;color:#fff;font-family:inherit;font-size:14px;outline:none;line-height:1.5;}
+.field-input:focus{border-color:rgba(255,255,255,.18);background:#141414;}
+.textarea{min-height:88px;resize:vertical;}
+.input-row{display:flex;align-items:center;gap:8px;}
+.input-row .field-input{flex:1;}
+.char-count{font-size:11px;color:rgba(255,255,255,.35);text-align:right;margin-top:4px;letter-spacing:.5px;}
+.nick-hint{font-size:11.5px;color:rgba(255,255,255,.4);margin-top:7px;display:flex;align-items:center;gap:5px;}
 
-/* EXAMPLE IDEAS */
-.ex-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
-.ex-icon{font-size:16px;}
-.ex-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:13.5px;letter-spacing:.5px;text-transform:uppercase;color:#f5c842;font-style:italic;}
-.ex-tag{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:.3px;color:rgba(255,255,255,.4);}
-
-.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:18px;background:#1f1f1f;border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px 8px;}
-.ex-card{display:grid;grid-template-columns:auto 1fr;column-gap:9px;row-gap:0;padding:0 6px;}
-.ex-card-icon{grid-column:1;grid-row:1;font-size:22px;line-height:1;align-self:start;margin-top:0;filter:grayscale(.3) brightness(.95);}
-.ex-card-name{grid-column:2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:14px;color:#ffffff;line-height:1.1;letter-spacing:-.1px;white-space:nowrap;}
-.ex-card-tag{grid-column:2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:0;color:rgba(255,255,255,.4);line-height:1.1;margin-top:1px;}
-.ex-card-desc{grid-column:1/-1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11.5px;font-weight:400;color:rgba(255,255,255,.45);line-height:1.5;margin-top:14px;}
-
-/* OPINION / NICKNAME BLOCK HEADERS */
-.op-block{margin-bottom:14px;background:#1f1f1f;border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px 16px 14px;}
-.nm-block{margin-bottom:10px;}
-.op-block-head{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;}
-.op-lbl{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:#ffffff;font-style:italic;}
-.op-tag{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:.3px;color:rgba(255,255,255,.4);}
-.op-help{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);line-height:1.45;margin-bottom:10px;}
-
-/* TEXTAREA */
-.op-wrap{position:relative;}
-.op-area{width:100%;min-height:90px;background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:12px 14px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;font-weight:400;color:#ffffff;line-height:1.5;outline:none;resize:none;transition:all .2s;}
-.op-area:focus{border-color:rgba(255,255,255,.18);background:#1a1a1a;}
-.op-area::placeholder{color:rgba(255,255,255,.3);font-weight:400;}
-.char-b{position:absolute;bottom:11px;right:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:500;letter-spacing:0;color:rgba(255,255,255,.35);background:transparent;padding:0;border:none;pointer-events:none;}
-
-/* NICKNAME INPUT */
-.nm-wrap{position:relative;margin-bottom:10px;}
-.f-input{width:100%;background:#1f1f1f;border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:12px 64px 12px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;font-weight:400;color:#ffffff;outline:none;transition:all .2s;}
-.f-input:focus{border-color:rgba(255,255,255,.18);background:#252525;}
-.f-input::placeholder{color:rgba(255,255,255,.3);font-weight:400;}
-.nick-b{position:absolute;top:50%;right:14px;transform:translateY(-50%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:500;letter-spacing:0;color:rgba(255,255,255,.35);pointer-events:none;}
-.nm-note{display:flex;align-items:flex-start;gap:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,.42);line-height:1.4;margin-top:8px;}
-.nm-note-icon{flex-shrink:0;width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.28);font-size:9px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);margin-top:1px;font-style:normal;}
-
-/* SUBMIT BAR / BUTTON */
-.sub-bar{flex-shrink:0;z-index:2;border-top:1px solid rgba(255,255,255,.06);background:#131313;padding:14px 28px 18px;position:relative;}
-.sub-btn{
-  display:flex;align-items:center;justify-content:center;gap:14px;width:100%;
-  font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;
-  color:#0a1402;
-  background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);
-  border:none;border-radius:10px;padding:14px 22px;cursor:pointer;
-  transition:all .22s cubic-bezier(.16,1,.3,1);
-  box-shadow:0 1px 0 rgba(0,0,0,.3),0 6px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.32);
-  position:relative;overflow:hidden;
-}
-.sub-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.22),transparent);transition:left .5s;}
-.sub-btn:hover:not(:disabled)::after{left:150%;}
-.sub-btn:hover:not(:disabled){box-shadow:0 2px 0 rgba(0,0,0,.32),0 10px 22px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.36);transform:translateY(-2px);filter:brightness(1.04);}
-.sub-btn:active:not(:disabled){transform:translateY(0);}
+.sub-bar{padding:18px 32px 28px;border-top:1px solid rgba(255,255,255,.06);background:#0a0a0a;}
+.sub-btn{width:100%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.8px;padding:15px;border-radius:9px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.3);transition:all .15s;}
+.sub-btn:hover:not(:disabled){filter:brightness(1.05);transform:translateY(-1px);}
 .sub-btn:disabled{opacity:.4;cursor:not-allowed;}
-.btn-icon{display:flex;align-items:center;justify-content:center;width:26px;height:26px;flex-shrink:0;}
-.btn-icon svg{width:24px;height:24px;}
-.sub-btn:hover:not(:disabled) .btn-icon{transform:translateX(4px) rotate(-4deg);}
-.btn-icon{transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
-.btn-lbl{display:flex;flex-direction:column;align-items:flex-start;gap:0;}
-.btn-lbl-main{font-size:18px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;line-height:1.1;color:#0a1402;}
-.btn-lbl-sub{font-size:11px;font-weight:600;font-style:normal;letter-spacing:.3px;text-transform:none;color:rgba(10,20,2,.65);}
-/* success */
-.success{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding:36px 30px;position:relative;z-index:2;}
+.btn-icon{font-size:18px;line-height:1;}
+.btn-sub{font-size:10.5px;font-weight:600;color:rgba(10,20,2,.7);letter-spacing:1px;margin-top:2px;}
+
+.success{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 30px;text-align:center;}
 .success.show{display:flex;}
-.s-icon{width:74px;height:74px;border-radius:50%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 8px rgba(203,237,58,.08);animation:s-pop .5s cubic-bezier(.34,1.56,.64,1);}
-.s-icon svg{width:36px;height:36px;color:#0a1402;}
-.s-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;font-size:26px;color:#ffffff;letter-spacing:-.3px;margin-bottom:10px;line-height:1.2;}
-.s-desc{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13.5px;font-weight:400;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:28px;max-width:320px;}
-.s-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.85);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:600;font-size:13px;letter-spacing:.2px;padding:11px 22px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;}
-.s-btn:hover{border-color:rgba(255,255,255,.4);color:#ffffff;background:rgba(255,255,255,.04);}
-@keyframes s-pop{0%{transform:scale(0);opacity:0;}60%{transform:scale(1.1);opacity:1;}100%{transform:scale(1);opacity:1;}}
+.success-icon{font-size:54px;margin-bottom:18px;}
+.success-h{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#cbed3a;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;}
+.success-t{font-size:14px;color:rgba(255,255,255,.65);line-height:1.55;max-width:340px;}
 
-.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.18);border-top-color:rgba(0,0,0,.56);animation:spin .7s linear infinite;flex-shrink:0;}
-
-/* MOBILE */
-@media(max-width:768px){
-  body{padding:10px;align-items:flex-start;}
-  .card{grid-template-columns:1fr;grid-template-rows:38vh 1fr;height:auto;max-height:none;border-radius:14px;}
-  .img-panel{height:38vh;}
-  .right-panel{border-left:none;border-top:1px solid rgba(255,255,255,.06);}
-  .top-bar{padding:14px 18px;}
-  .back-btn{font-size:10px;padding:6px 14px;}
-  .r-body{padding:26px 20px 14px;}
-  .r-eyebrow{font-size:12px;}
-  .r-title{font-size:24px;line-height:1.2;}
-  .r-sub{font-size:13px;}
-  .ex-grid{grid-template-columns:repeat(2,1fr);gap:0;padding:14px 10px;margin-bottom:26px;}
-  .ex-card{padding:10px 12px;border-right:none;border-bottom:1px solid rgba(255,255,255,.05);}
-  .ex-card:nth-child(2),.ex-card:nth-child(4){border-right:none;}
-  .ex-card:nth-child(odd){border-right:1px solid rgba(255,255,255,.05);}
-  .ex-card:nth-child(3),.ex-card:nth-child(4){border-bottom:none;}
-  .ex-card-icon{font-size:21px;}
-  .ex-card-name{font-size:15px;}
-  .ex-card-desc{font-size:11.5px;}
-  .op-lbl{font-size:14px;}
-  .op-area{font-size:14.5px;padding:14px 16px 36px;min-height:120px;}
-  .f-input{font-size:14.5px;padding:13px 60px 13px 16px;}
-  .sub-bar{padding:14px 20px 16px;}
-  .sub-btn{padding:15px 20px;gap:12px;}
-  .btn-lbl-main{font-size:18px;letter-spacing:1.4px;}
-  .btn-lbl-sub{font-size:11px;}
-  .btn-icon{width:26px;height:26px;}
-  .btn-icon svg{width:24px;height:24px;}
+@media(max-width:980px){
+  body{padding:14px;}
+  .card{grid-template-columns:1fr;}
+  .img-panel{min-height:340px;}
+  .r-body{padding:24px 18px 16px;}
+  .sub-bar{padding:14px 18px 18px;}
+  .r-title{font-size:24px;}
+  .examples-grid{grid-template-columns:repeat(2,1fr);}
 }
-
-
-.wallet-bar .back-btn{flex-shrink:0;}
-/* WALLET BAR */
-.wallet-action{flex:1;display:flex;justify-content:flex-end;}
-.wallet-action .wallet-disconnected,.wallet-action .wallet-connected{flex:1;}
-.wallet-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.wallet-disconnected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.wallet-msg{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;}
-.wallet-btn{background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.5px;padding:9px 18px;border-radius:7px;cursor:pointer;transition:all .15s;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);text-transform:uppercase;}
-.wallet-btn:hover{transform:translateY(-1px);filter:brightness(1.05);}
-.wallet-connected{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.wallet-info{display:flex;align-items:center;gap:8px;font-size:12.5px;}
-.wallet-dot{width:8px;height:8px;border-radius:50%;background:#cbed3a;box-shadow:0 0 6px rgba(203,237,58,.6);flex-shrink:0;}
-.wallet-addr{font-family:'Courier New',monospace;color:rgba(255,255,255,.85);font-weight:500;letter-spacing:.2px;}
-.wallet-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.6);font-family:inherit;font-size:10.5px;font-weight:600;letter-spacing:.6px;padding:6px 12px;border-radius:5px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
-.wallet-btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,.3);}
-@media(max-width:768px){
-  .wallet-bar{padding:11px 18px;}
-  .wallet-msg{font-size:11px;}
-  .wallet-btn{font-size:11px;padding:8px 14px;}
-  .wallet-addr{font-size:11.5px;}
+@media(max-width:480px){
+  .auth-bar{padding:11px 18px;}
+  .auth-msg{font-size:11px;}
+  .auth-btn{font-size:11px;padding:7px 13px;}
+  .auth-nick{font-size:11.5px;}
 }
-
 </style>
-
 </head>
 <body>
 <div class="card">
 <!-- LEFT: IMAGE -->
   <div class="img-panel">
-    <!-- File: form-image.jpg (replace in same folder) -->
     <img class="hero-img" src="form-image.jpg" alt=""
       onerror="this.style.display='none';document.querySelector('.img-fallback').style.display='flex';">
     <div class="img-fallback"><div style="font-size:36px;opacity:.15;">🖼️</div><div class="fb-txt">Place form-image.jpg here</div></div>
@@ -215,282 +129,376 @@ body::before{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;o
   <div class="right-panel">
     <div class="r-edge"></div>
 
-    <!-- WALLET BAR -->
-    <div class="wallet-bar">
+    <!-- AUTH BAR -->
+    <div class="auth-bar">
       <a class="back-btn" href="index.html">← Back</a>
-      <div class="wallet-action" id="wallet-status">
-        <div class="wallet-disconnected">
-          <span class="wallet-msg">Connect your wallet to submit</span>
-          <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
-        </div>
+      <div class="auth-action" id="auth-status">
+        <span class="auth-msg">Sign in to submit</span>
+        <button class="auth-btn-secondary" id="open-login" type="button">Log In</button>
+        <button class="auth-btn" id="open-signup" type="button">Sign Up</button>
       </div>
     </div>
 
     <div class="r-body" id="form-wrap">
 
       <div class="r-head">
-        <div class="r-eyebrow">APEPE Community FLOW</div>
-        <h2 class="r-title">What is the best way to run the FLOW?</h2>
-        <p class="r-sub">Share your opinions based on various ideas and help<br>us decide the next FLOW together.</p>
+        <span class="r-tag">APEPE Community FLOW</span>
+        <h1 class="r-title">What is the best way to run the FLOW?</h1>
+        <p class="r-sub">Share your opinions based on various ideas and help us decide the next FLOW together.</p>
       </div>
+
       <div class="r-divider"></div>
 
-      <div class="ex-head">
-        <span class="ex-icon">💡</span>
-        <span class="ex-title">EXAMPLE IDEAS</span>
-        <span class="ex-tag">(EXAMPLES)</span>
-      </div>
-
-      <div class="ex-grid">
-        <div class="ex-card">
-          <div class="ex-card-icon">📅</div>
-          <div class="ex-card-name">Weekly</div>
-          <div class="ex-card-tag">(BEST)</div>
-          <div class="ex-card-desc">Run FLOW<br>weekly with<br>a fixed schedule</div>
-        </div>
-        <div class="ex-card">
-          <div class="ex-card-icon">🗓️</div>
-          <div class="ex-card-name">Bi-Weekly</div>
-          <div class="ex-card-tag">(GOOD)</div>
-          <div class="ex-card-desc">Run FLOW<br>every two weeks</div>
-        </div>
-        <div class="ex-card">
-          <div class="ex-card-icon">📆</div>
-          <div class="ex-card-name">Monthly</div>
-          <div class="ex-card-tag">(NORMAL)</div>
-          <div class="ex-card-desc">Run FLOW<br>once a month</div>
-        </div>
-        <div class="ex-card">
-          <div class="ex-card-icon">⭐</div>
-          <div class="ex-card-name">Special FLOW</div>
-          <div class="ex-card-tag">(OTHER)</div>
-          <div class="ex-card-desc">Run FLOW for<br>special proposals<br>or urgent issues</div>
+      <div class="examples-box">
+        <div class="examples-h">💡 <span style="color:#cbed3a;">EXAMPLE IDEAS</span> <span class="examples-h-sub">(EXAMPLES)</span></div>
+        <div class="examples-grid">
+          <div class="ex-item">
+            <div class="ex-icon">📅</div>
+            <div class="ex-name">Weekly</div>
+            <div class="ex-tag">(BEST)</div>
+            <div class="ex-desc">Run FLOW weekly with a fixed schedule</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-icon">📅</div>
+            <div class="ex-name">Bi-Weekly</div>
+            <div class="ex-tag">(GOOD)</div>
+            <div class="ex-desc">Run FLOW every two weeks</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-icon">📅</div>
+            <div class="ex-name">Monthly</div>
+            <div class="ex-tag">(NORMAL)</div>
+            <div class="ex-desc">Run FLOW once a month</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-icon">⭐</div>
+            <div class="ex-name">Special FLOW</div>
+            <div class="ex-tag">(OTHER)</div>
+            <div class="ex-desc">Run FLOW for special proposals or urgent issues</div>
+          </div>
         </div>
       </div>
 
-      <div class="op-block">
-        <div class="op-block-head">
-          <span class="op-lbl">YOUR OPINION</span>
-          <span class="op-tag">(FREE TEXT)</span>
-        </div>
-        <p class="op-help">Please share your opinion freely.<br>e.g., preferred schedule, FLOW topics, FLOW operation methods, etc.</p>
-        <div class="op-wrap">
-          <textarea class="op-area" id="opinion" placeholder="Enter your opinion here..." maxlength="1000" oninput="updateChar()"></textarea>
-          <div class="char-b" id="char-count">0 / 1000</div>
-        </div>
+      <div class="field-box">
+        <div class="field-h">YOUR OPINION <span class="field-h-sub">(FREE TEXT)</span></div>
+        <div class="field-desc">Please share your opinion freely.<br>e.g., preferred schedule, FLOW topics, FLOW operation methods, etc.</div>
+        <textarea class="field-input textarea" id="opinion" placeholder="Enter your opinion here..." maxlength="1000" oninput="updateChar()"></textarea>
+        <div class="char-count"><span id="char-count">0 / 1000</span></div>
       </div>
 
-      <div class="nm-block">
-        <div class="op-block-head">
-          <span class="op-lbl">COMMUNITY NAME</span>
-          <span class="op-tag">(NICKNAME)</span>
-        </div>
-        <div class="nm-wrap">
-          <input class="f-input" type="text" id="nickname" placeholder="Enter your nickname" maxlength="20" oninput="updateNickChar()">
-          <div class="nick-b" id="nick-count">0 / 20</div>
-        </div>
-        <p class="nm-note"><span class="nm-note-icon">ⓘ</span> Your nickname will be shown with your submission in the Community FLOW results.</p>
+      <div class="field-box">
+        <div class="field-h">COMMUNITY NAME <span class="field-h-sub">(NICKNAME)</span></div>
+        <div class="field-desc">Posting as your account nickname. Sign in to change.</div>
+        <input class="field-input" id="nickname-display" type="text" disabled placeholder="Sign in to participate">
+        <div class="nick-hint">ⓘ Your nickname will be shown with your submission in the Community FLOW results.</div>
       </div>
 
     </div>
 
     <div class="success" id="success">
-      <div class="s-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      </div>
-      <div class="s-title">Opinion Submitted</div>
-      <div class="s-desc">Thank you for sharing your idea.<br>It will help shape the next APEPE Community FLOW.</div>
-      <a class="s-btn" href="index.html">← Back to Main</a>
+      <div class="success-icon">✓</div>
+      <div class="success-h">Submitted</div>
+      <div class="success-t">Thank you for joining the Community FLOW.<br>Your opinion will help guide the next step.</div>
     </div>
 
     <div class="sub-bar" id="sub-bar">
-      <button class="sub-btn" id="sub-btn" onclick="submitOpinion()">
-        <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
-        <span class="btn-lbl">
-          <span class="btn-lbl-main" id="btn-txt">SUBMIT YOUR IDEA</span>
-          <span class="btn-lbl-sub">Submit your opinion</span>
+      <button class="sub-btn" id="sub-btn" disabled>
+        <span class="btn-icon">➤</span>
+        <span>
+          <span id="btn-txt">SUBMIT YOUR IDEA</span>
+          <div class="btn-sub">Submit your opinion</div>
         </span>
       </button>
     </div>
-  </div>
 
+  </div>
 </div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-bg" id="login-modal">
+  <div class="modal">
+    <div class="modal-h">Log In</div>
+    <div class="modal-sub">Sign in to your APEPE Community account.</div>
+    <div class="modal-field">
+      <label class="modal-label">Email</label>
+      <input class="modal-input" type="email" id="login-email" autocomplete="email">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Password</label>
+      <input class="modal-input" type="password" id="login-password" autocomplete="current-password">
+    </div>
+    <div class="modal-error" id="login-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="login-btn" type="button">Log In</button>
+    </div>
+    <div class="modal-link">
+      Don't have an account? <a id="switch-to-signup">Sign Up</a>
+    </div>
+    <div class="modal-link" style="margin-top:4px;">
+      <a id="close-modal-1">Close</a>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-bg" id="signup-modal">
+  <div class="modal">
+    <div class="modal-h">Sign Up</div>
+    <div class="modal-sub">Create your APEPE Community account.</div>
+    <div class="modal-field">
+      <label class="modal-label">Email</label>
+      <input class="modal-input" type="email" id="signup-email" autocomplete="email">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Password (min 6 chars)</label>
+      <input class="modal-input" type="password" id="signup-password" autocomplete="new-password">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Nickname (2-20 chars, unique)</label>
+      <input class="modal-input" type="text" id="signup-nickname" maxlength="20">
+    </div>
+    <div class="modal-error" id="signup-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="signup-btn" type="button">Sign Up</button>
+    </div>
+    <div class="modal-link">
+      Already have an account? <a id="switch-to-login">Log In</a>
+    </div>
+    <div class="modal-link" style="margin-top:4px;">
+      <a id="close-modal-2">Close</a>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-import { createAppKit } from 'https://esm.sh/@reown/appkit@1.6.5?bundle'
-import { polygon } from 'https://esm.sh/@reown/appkit@1.6.5/networks?bundle'
-import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@1.6.5?bundle'
-import { BrowserProvider, Contract, formatUnits } from 'https://esm.sh/ethers@6.13.4'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
 
 const SUPABASE_URL = 'https://aejergnmqyiibgkqunxl.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL'
-const REOWN_PROJECT_ID = '70d7b8fa6a04c363b4ac73bfb0c353a8'
 
-const metadata = {
-  name: 'APEPE Community Flow',
-  description: 'Community-driven opinion and voting',
-  url: 'https://apepe.io/communityflow/',
-  icons: ['https://apepe.io/communityflow/images/apepe-logo-bar.jpg']
-}
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const modal = createAppKit({
-  adapters: [new EthersAdapter()],
-  networks: [polygon],
-  projectId: REOWN_PROJECT_ID,
-  metadata,
-  features: { analytics: false, email: false, socials: [] }
-})
-console.log('[APEPE] modal created:', modal)
+let currentUser = null
+let currentProfile = null
 
-let currentAccount = null
-let currentProvider = null
-
-function shortAddr(a){ return a.slice(0, 6) + '...' + a.slice(-4) }
-
-function renderConnected(addr){
-  document.getElementById('wallet-status').innerHTML = `
-    <div class="wallet-connected">
-      <div class="wallet-info">
-        <span class="wallet-dot"></span>
-        <span class="wallet-addr">${shortAddr(addr)}</span>
-      </div>
-      <button class="wallet-btn-secondary" id="disconnect-btn" type="button">Disconnect</button>
-    </div>`
-  document.getElementById('disconnect-btn').addEventListener('click', () => modal.disconnect())
-  const sb = document.getElementById('sub-btn')
-  if (sb) sb.disabled = false
-}
-
-function renderDisconnected(){
-  document.getElementById('wallet-status').innerHTML = `
-    <div class="wallet-disconnected">
-      <span class="wallet-msg">Connect your wallet to submit</span>
-      <button class="wallet-btn" id="connect-btn" type="button">Connect Wallet</button>
-    </div>`
-  document.getElementById('connect-btn').addEventListener('click', () => { console.log('[APEPE] connect clicked'); modal.open() })
-  const sb = document.getElementById('sub-btn')
-  if (sb) sb.disabled = true
-}
-
-// Initial bind
-document.getElementById('connect-btn').addEventListener('click', () => { console.log('[APEPE] connect clicked'); modal.open() })
-const subBtnInit = document.getElementById('sub-btn')
-if (subBtnInit) subBtnInit.disabled = true
-
-modal.subscribeAccount((state) => {
-  if (state.isConnected && state.address) {
-    currentAccount = state.address
-    renderConnected(state.address)
-  } else {
-    currentAccount = null
-    currentProvider = null
-    renderDisconnected()
-  }
-})
-
-modal.subscribeProviders((state) => {
-  currentProvider = state['eip155']
-})
-
-// Char counters
+// ─── Char counter ───
 window.updateChar = function(){
   document.getElementById('char-count').textContent = document.getElementById('opinion').value.length + ' / 1000'
 }
-window.updateNickChar = function(){
-  document.getElementById('nick-count').textContent = document.getElementById('nickname').value.length + ' / 20'
+
+// ─── Auth UI rendering ───
+function renderLoggedIn(profile){
+  document.getElementById('auth-status').innerHTML = `
+    <div class="auth-user">
+      <span class="auth-dot"></span>
+      <span class="auth-nick">@${escapeHtml(profile.nickname)}</span>
+    </div>
+    <button class="auth-btn-secondary" id="logout-btn" type="button">Log Out</button>`
+  document.getElementById('logout-btn').addEventListener('click', doLogout)
+  document.getElementById('nickname-display').value = profile.nickname
+  document.getElementById('sub-btn').disabled = false
 }
 
-// Submit
-window.submitOpinion = async function(){
-  if (!currentAccount) {
-    alert('Please connect your wallet first.')
+function renderLoggedOut(){
+  document.getElementById('auth-status').innerHTML = `
+    <span class="auth-msg">Sign in to submit</span>
+    <button class="auth-btn-secondary" id="open-login" type="button">Log In</button>
+    <button class="auth-btn" id="open-signup" type="button">Sign Up</button>`
+  document.getElementById('open-login').addEventListener('click', () => openModal('login'))
+  document.getElementById('open-signup').addEventListener('click', () => openModal('signup'))
+  document.getElementById('nickname-display').value = ''
+  document.getElementById('nickname-display').placeholder = 'Sign in to participate'
+  document.getElementById('sub-btn').disabled = true
+}
+
+// ─── Initial UI binding ───
+document.getElementById('open-login').addEventListener('click', () => openModal('login'))
+document.getElementById('open-signup').addEventListener('click', () => openModal('signup'))
+document.getElementById('switch-to-signup').addEventListener('click', () => openModal('signup'))
+document.getElementById('switch-to-login').addEventListener('click', () => openModal('login'))
+document.getElementById('close-modal-1').addEventListener('click', closeAllModals)
+document.getElementById('close-modal-2').addEventListener('click', closeAllModals)
+document.getElementById('login-btn').addEventListener('click', doLogin)
+document.getElementById('signup-btn').addEventListener('click', doSignup)
+document.getElementById('sub-btn').addEventListener('click', submitOpinion)
+
+function openModal(which){
+  closeAllModals()
+  if(which === 'login') document.getElementById('login-modal').classList.add('show')
+  else document.getElementById('signup-modal').classList.add('show')
+}
+
+function closeAllModals(){
+  document.getElementById('login-modal').classList.remove('show')
+  document.getElementById('signup-modal').classList.remove('show')
+  document.getElementById('login-error').classList.remove('show')
+  document.getElementById('signup-error').classList.remove('show')
+}
+
+function showLoginError(msg){
+  const el = document.getElementById('login-error')
+  el.textContent = msg
+  el.classList.add('show')
+}
+function showSignupError(msg){
+  const el = document.getElementById('signup-error')
+  el.textContent = msg
+  el.classList.add('show')
+}
+
+// ─── Auth actions ───
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim()
+  const password = document.getElementById('login-password').value
+  if(!email || !password){ showLoginError('Email and password required'); return }
+
+  const btn = document.getElementById('login-btn')
+  btn.disabled = true
+  btn.textContent = 'LOGGING IN...'
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if(error) throw error
+    await loadProfile(data.user)
+    closeAllModals()
+  } catch(e) {
+    showLoginError(e.message || 'Login failed')
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Log In'
+  }
+}
+
+async function doSignup(){
+  const email = document.getElementById('signup-email').value.trim()
+  const password = document.getElementById('signup-password').value
+  const nickname = document.getElementById('signup-nickname').value.trim()
+  if(!email || !password || !nickname){ showSignupError('All fields required'); return }
+  if(password.length < 6){ showSignupError('Password must be at least 6 characters'); return }
+  if(nickname.length < 2 || nickname.length > 20){ showSignupError('Nickname must be 2-20 characters'); return }
+
+  const btn = document.getElementById('signup-btn')
+  btn.disabled = true
+  btn.textContent = 'CREATING...'
+
+  try {
+    // Check nickname uniqueness first
+    const { data: existing, error: chkErr } = await supabase
+      .from('user_profiles')
+      .select('nickname')
+      .ilike('nickname', nickname)
+      .limit(1)
+    if(chkErr) throw chkErr
+    if(existing && existing.length > 0){
+      showSignupError('Nickname already taken. Please choose another.')
+      btn.disabled = false
+      btn.textContent = 'Sign Up'
+      return
+    }
+
+    // Sign up
+    const { data: signupData, error: signupErr } = await supabase.auth.signUp({ email, password })
+    if(signupErr) throw signupErr
+    const user = signupData.user
+    if(!user) throw new Error('Sign up failed: no user returned')
+
+    // Insert profile
+    const { error: profErr } = await supabase
+      .from('user_profiles')
+      .insert({ id: user.id, nickname })
+    if(profErr){
+      // Likely unique violation race condition
+      if((profErr.message || '').toLowerCase().includes('duplicate')){
+        showSignupError('Nickname already taken. Please choose another.')
+      } else {
+        showSignupError('Profile creation failed: ' + profErr.message)
+      }
+      btn.disabled = false
+      btn.textContent = 'Sign Up'
+      return
+    }
+
+    await loadProfile(user)
+    closeAllModals()
+  } catch(e) {
+    showSignupError(e.message || 'Sign up failed')
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Sign Up'
+  }
+}
+
+async function doLogout(){
+  await supabase.auth.signOut()
+  currentUser = null
+  currentProfile = null
+  renderLoggedOut()
+}
+
+async function loadProfile(user){
+  currentUser = user
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('nickname')
+    .eq('id', user.id)
+    .single()
+  if(error || !data){
+    // No profile yet — shouldn't happen normally
+    currentProfile = null
+    renderLoggedOut()
+    return
+  }
+  currentProfile = data
+  renderLoggedIn(data)
+}
+
+// Restore session on page load
+async function init(){
+  const { data: { session } } = await supabase.auth.getSession()
+  if(session && session.user){
+    await loadProfile(session.user)
+  } else {
+    renderLoggedOut()
+  }
+}
+
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if(event === 'SIGNED_OUT'){
+    currentUser = null
+    currentProfile = null
+    renderLoggedOut()
+  }
+})
+
+// ─── Submit opinion ───
+async function submitOpinion(){
+  if(!currentUser || !currentProfile){
+    alert('Please sign in first.')
     return
   }
   const op = document.getElementById('opinion').value.trim()
-  if (!op) { document.getElementById('opinion').focus(); return }
-  const nickname = document.getElementById('nickname').value.trim()
+  if(!op){ document.getElementById('opinion').focus(); return }
+
   const btn = document.getElementById('sub-btn')
   const btnTxt = document.getElementById('btn-txt')
   btn.disabled = true
-  btnTxt.textContent = 'CHECKING...'
+  btnTxt.textContent = 'SUBMITTING...'
 
   try {
-    // 1. Load settings
-    const settingsRes = await fetch(SUPABASE_URL + '/rest/v1/settings?select=key,value', {
-      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-    })
-    if (!settingsRes.ok) throw new Error('Failed to load settings')
-    const arr = await settingsRes.json()
-    const settings = {}
-    arr.forEach(s => settings[s.key] = s.value)
-
-    // 2. Optional token check
-    if (settings.token_check_enabled === 'true') {
-      btnTxt.textContent = 'VERIFYING TOKEN...'
-      const minBal = parseFloat(settings.min_token_balance || '0')
-      const tokenAddr = settings.token_contract_address
-      const decimals = parseInt(settings.token_decimals || '18')
-
-      if (!currentProvider) throw new Error('Wallet provider not ready. Please reconnect.')
-      const provider = new BrowserProvider(currentProvider)
-      const abi = ['function balanceOf(address) view returns (uint256)']
-      const contract = new Contract(tokenAddr, abi, provider)
-      const raw = await contract.balanceOf(currentAccount)
-      const balance = parseFloat(formatUnits(raw, decimals))
-
-      if (balance < minBal) {
-        alert(`Minimum ${minBal} APEPE required to participate. Your balance: ${balance.toFixed(2)}`)
-        btn.disabled = false
-        btnTxt.textContent = 'SUBMIT YOUR IDEA'
-        return
-      }
-    }
-
-    // 3. Sign message
-    btnTxt.textContent = 'SIGN IN WALLET...'
-    const timestamp = new Date().toISOString()
-    const message = `APEPE Community Flow — Submit Opinion
-Wallet: ${currentAccount}
-Timestamp: ${timestamp}`
-    if (!currentProvider) throw new Error('Wallet provider not ready. Please reconnect.')
-    const provider = new BrowserProvider(currentProvider)
-    const signer = await provider.getSigner()
-    const signature = await signer.signMessage(message)
-
-    // 4. Save
-    btnTxt.textContent = 'SUBMITTING...'
-    const body = {
-      opinion: op,
-      wallet_address: currentAccount.toLowerCase(),
-      signature: signature,
-      signed_message: message,
-      source: 'direct'
-    }
-    if (nickname) body.nickname = nickname
-
-    const r = await fetch(SUPABASE_URL + '/rest/v1/opinions', {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(body)
-    })
-    if (r.ok || r.status === 201) {
-      showSuccess()
-    } else {
-      throw new Error(await r.text())
-    }
-  } catch (e) {
-    console.error(e)
+    const { error } = await supabase
+      .from('opinions')
+      .insert({
+        opinion: op,
+        nickname: currentProfile.nickname,
+        user_id: currentUser.id,
+        source: 'direct'
+      })
+    if(error) throw error
+    showSuccess()
+  } catch(e) {
     btn.disabled = false
     btnTxt.textContent = 'SUBMIT YOUR IDEA'
-    if (e.code === 'ACTION_REJECTED' || (e.message || '').includes('rejected')) {
-      alert('Signature was rejected.')
-    } else {
-      alert('Error: ' + (e.message || e))
-    }
+    alert('Submit failed: ' + (e.message || e))
   }
 }
 
@@ -499,6 +507,12 @@ function showSuccess(){
   document.getElementById('sub-bar').style.display = 'none'
   document.getElementById('success').classList.add('show')
 }
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+}
+
+init()
 </script>
 </body>
 </html>
