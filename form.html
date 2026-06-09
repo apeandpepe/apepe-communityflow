@@ -4,515 +4,106 @@
 <meta charset="UTF-8">
 <base href="/communityflow/">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APEPE · Community Input</title>
+<title>APEPE · Community Input — Coming Soon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:#0a0a0a;color:#fff;font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
-body{padding:24px;display:flex;justify-content:center;align-items:flex-start;}
+body{padding:24px;display:flex;justify-content:center;align-items:center;min-height:100vh;}
 .card{width:100%;max-width:1280px;display:grid;grid-template-columns:1fr 1fr;gap:0;background:#111;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.06);box-shadow:0 30px 80px rgba(0,0,0,.55);position:relative;}
 
-.img-panel{background:#0a1402;position:relative;display:flex;align-items:center;justify-content:center;min-height:600px;overflow:hidden;}
-.hero-img{width:100%;height:100%;object-fit:cover;display:block;}
+.img-panel{background:#0a1402;position:relative;display:flex;align-items:center;justify-content:center;min-height:520px;overflow:hidden;}
+.hero-img{width:100%;height:100%;object-fit:contain;display:block;background:#0a1402;}
 .img-fallback{display:none;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-align:center;}
 .fb-txt{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;}
 
 .right-panel{display:flex;flex-direction:column;background:#0e0e0e;position:relative;}
-.r-edge{position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(203,237,58,.18),transparent);}
+.r-edge{position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(232,170,90,.25),transparent);}
 
-/* AUTH BAR */
-.auth-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.back-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.7px;padding:7px 14px;border-radius:5px;cursor:pointer;text-transform:uppercase;text-decoration:none;flex-shrink:0;}
+.top-bar{position:relative;z-index:3;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.06);background:#0e0e0e;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.7px;padding:7px 14px;border-radius:5px;cursor:pointer;text-transform:uppercase;text-decoration:none;}
 .back-btn:hover{color:#fff;border-color:rgba(255,255,255,.3);}
-.auth-action{flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px;}
+.top-label{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;font-weight:700;color:rgba(232,170,90,.85);letter-spacing:2px;text-transform:uppercase;}
 
-.auth-msg{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;margin-right:6px;}
-.auth-btn{background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:700;font-size:11.5px;letter-spacing:.5px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:all .15s;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);text-transform:uppercase;}
-.auth-btn:hover{transform:translateY(-1px);filter:brightness(1.05);}
-.auth-btn-secondary{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.75);font-family:inherit;font-weight:600;font-size:11px;letter-spacing:.6px;padding:7px 13px;border-radius:5px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
-.auth-btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,.3);}
-.auth-user{display:flex;align-items:center;gap:8px;font-size:12.5px;}
-.auth-dot{width:8px;height:8px;border-radius:50%;background:#cbed3a;box-shadow:0 0 6px rgba(203,237,58,.6);flex-shrink:0;}
-.auth-nick{color:rgba(255,255,255,.9);font-weight:600;letter-spacing:.2px;}
+.r-body{padding:60px 40px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
 
-/* AUTH MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-bg.show{display:flex;}
-.modal{background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px;width:100%;max-width:380px;}
-.modal-h{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#fff;margin-bottom:6px;}
-.modal-sub{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:20px;line-height:1.55;}
-.modal-field{margin-bottom:13px;}
-.modal-label{display:block;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;}
-.modal-input{width:100%;background:#222;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:10px 13px;font-family:inherit;font-size:14px;color:#fff;outline:none;}
-.modal-input:focus{border-color:rgba(255,255,255,.25);background:#252525;}
-.modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:18px;}
-.modal-btn{width:100%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.7px;padding:13px;border-radius:8px;cursor:pointer;text-transform:uppercase;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);}
-.modal-btn:hover:not(:disabled){filter:brightness(1.05);}
-.modal-btn:disabled{opacity:.5;cursor:not-allowed;}
-.modal-link{text-align:center;font-size:12.5px;color:rgba(255,255,255,.55);margin-top:6px;}
-.modal-link a{color:#cbed3a;cursor:pointer;text-decoration:none;font-weight:600;}
-.modal-link a:hover{text-decoration:underline;}
-.modal-close{position:absolute;background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:20px;line-height:1;padding:6px;}
-.modal-error{background:rgba(232,90,90,.1);border:1px solid rgba(232,90,90,.3);border-radius:6px;padding:9px 12px;color:#e85a5a;font-size:12px;margin-top:10px;display:none;}
-.modal-error.show{display:block;}
+.cs-tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#e8aa5a;border:1px solid rgba(232,170,90,.4);padding:5px 14px;border-radius:4px;margin-bottom:22px;}
 
-.r-body{padding:36px 32px 24px;flex:1;overflow-y:auto;}
-.r-head{margin-bottom:20px;}
-.r-tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#cbed3a;border:1px solid rgba(203,237,58,.4);padding:4px 11px;border-radius:4px;margin-bottom:14px;}
-.r-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1.08;margin-bottom:8px;text-transform:uppercase;}
-.r-sub{font-size:14px;color:rgba(255,255,255,.6);line-height:1.55;}
-.r-divider{height:1px;background:rgba(255,255,255,.07);margin:20px 0;}
+.cs-title{font-family:'Barlow Condensed',sans-serif;font-size:54px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1;margin-bottom:14px;text-transform:uppercase;background:linear-gradient(180deg,#fff 0%,#999 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-.examples-box{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:16px;margin-bottom:18px;}
-.examples-h{display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#cbed3a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:11px;}
-.examples-h-sub{color:rgba(255,255,255,.4);font-size:10.5px;font-weight:600;letter-spacing:1.2px;}
-.examples-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.ex-item{background:#0e0e0e;border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:9px 8px;text-align:left;}
-.ex-icon{font-size:14px;margin-bottom:4px;}
-.ex-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:.2px;}
-.ex-tag{font-size:9.5px;color:rgba(255,255,255,.45);font-weight:600;letter-spacing:.6px;margin-bottom:6px;text-transform:uppercase;}
-.ex-desc{font-size:10.5px;color:rgba(255,255,255,.55);line-height:1.4;margin-top:4px;}
+.cs-sub{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;}
 
-.field-box{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:16px;margin-bottom:14px;}
-.field-h{display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
-.field-h-sub{color:rgba(255,255,255,.4);font-size:10.5px;font-weight:600;letter-spacing:1.2px;}
-.field-desc{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:11px;}
-.field-input{width:100%;background:#0e0e0e;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px 13px;color:#fff;font-family:inherit;font-size:14px;outline:none;line-height:1.5;}
-.field-input:focus{border-color:rgba(255,255,255,.18);background:#141414;}
-.textarea{min-height:88px;resize:vertical;}
-.input-row{display:flex;align-items:center;gap:8px;}
-.input-row .field-input{flex:1;}
-.char-count{font-size:11px;color:rgba(255,255,255,.35);text-align:right;margin-top:4px;letter-spacing:.5px;}
-.nick-hint{font-size:11.5px;color:rgba(255,255,255,.4);margin-top:7px;display:flex;align-items:center;gap:5px;}
+.cs-desc{font-size:14.5px;color:rgba(255,255,255,.55);line-height:1.65;max-width:380px;margin-bottom:34px;}
 
-.sub-bar{padding:18px 32px 28px;border-top:1px solid rgba(255,255,255,.06);background:#0a0a0a;}
-.sub-btn{width:100%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.8px;padding:15px;border-radius:9px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.3);transition:all .15s;}
-.sub-btn:hover:not(:disabled){filter:brightness(1.05);transform:translateY(-1px);}
-.sub-btn:disabled{opacity:.4;cursor:not-allowed;}
-.btn-icon{font-size:18px;line-height:1;}
-.btn-sub{font-size:10.5px;font-weight:600;color:rgba(10,20,2,.7);letter-spacing:1px;margin-top:2px;}
+.cs-cta{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:300px;}
+.vote-btn{width:100%;background:linear-gradient(180deg,#cbed3a 0%,#b4e840 100%);color:#0a1402;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.8px;padding:14px 22px;border-radius:9px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 1px 0 rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.3);transition:all .15s;text-decoration:none;}
+.vote-btn:hover{filter:brightness(1.05);transform:translateY(-1px);}
+.vote-btn-icon{font-size:18px;}
 
-.success{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 30px;text-align:center;}
-.success.show{display:flex;}
-.success-icon{font-size:54px;margin-bottom:18px;}
-.success-h{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#cbed3a;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;}
-.success-t{font-size:14px;color:rgba(255,255,255,.65);line-height:1.55;max-width:340px;}
+.cs-dots{display:flex;gap:8px;margin-top:18px;justify-content:center;}
+.cs-dot{width:7px;height:7px;border-radius:50%;background:rgba(232,170,90,.4);animation:cs-pulse 1.4s ease-in-out infinite;}
+.cs-dot:nth-child(2){animation-delay:.18s;}
+.cs-dot:nth-child(3){animation-delay:.36s;}
+@keyframes cs-pulse{
+  0%,80%,100%{transform:scale(.6);opacity:.4;}
+  40%{transform:scale(1);opacity:1;}
+}
 
 @media(max-width:980px){
   body{padding:14px;}
   .card{grid-template-columns:1fr;}
-  .img-panel{min-height:340px;}
-  .r-body{padding:24px 18px 16px;}
-  .sub-bar{padding:14px 18px 18px;}
-  .r-title{font-size:24px;}
-  .examples-grid{grid-template-columns:repeat(2,1fr);}
-}
-@media(max-width:480px){
-  .auth-bar{padding:11px 18px;}
-  .auth-msg{font-size:11px;}
-  .auth-btn{font-size:11px;padding:7px 13px;}
-  .auth-nick{font-size:11.5px;}
+  .img-panel{min-height:280px;}
+  .r-body{padding:36px 22px;}
+  .cs-title{font-size:42px;}
+  .cs-sub{font-size:15px;}
 }
 </style>
 </head>
 <body>
 <div class="card">
-<!-- LEFT: IMAGE -->
+
   <div class="img-panel">
     <img class="hero-img" src="form-image.jpg" alt=""
       onerror="this.style.display='none';document.querySelector('.img-fallback').style.display='flex';">
-    <div class="img-fallback"><div style="font-size:36px;opacity:.15;">🖼️</div><div class="fb-txt">Place form-image.jpg here</div></div>
+    <div class="img-fallback">
+      <div style="font-size:36px;opacity:.15;">⏳</div>
+      <div class="fb-txt">Coming Soon</div>
+    </div>
   </div>
 
-  <!-- RIGHT: FORM -->
   <div class="right-panel">
     <div class="r-edge"></div>
 
-    <!-- AUTH BAR -->
-    <div class="auth-bar">
+    <div class="top-bar">
       <a class="back-btn" href="index.html">← Back</a>
-      <div class="auth-action" id="auth-status">
-        <span class="auth-msg">Sign in to submit</span>
-        <button class="auth-btn-secondary" id="open-login" type="button">Log In</button>
-        <button class="auth-btn" id="open-signup" type="button">Sign Up</button>
-      </div>
+      <span class="top-label">APEPE Community FLOW</span>
     </div>
 
-    <div class="r-body" id="form-wrap">
+    <div class="r-body">
+      <span class="cs-tag">Opinion Submission</span>
+      <h1 class="cs-title">Coming Soon</h1>
+      <div class="cs-sub">Stay Tuned</div>
+      <p class="cs-desc">
+        We're running a community vote right now.<br>
+        Opinion submission will be available again after the current voting round wraps up.
+      </p>
 
-      <div class="r-head">
-        <span class="r-tag">APEPE Community FLOW</span>
-        <h1 class="r-title">What is the best way to run the FLOW?</h1>
-        <p class="r-sub">Share your opinions based on various ideas and help us decide the next FLOW together.</p>
+      <div class="cs-cta">
+        <a class="vote-btn" href="vote.html">
+          <span class="vote-btn-icon">▶</span>
+          <span>Go to Community Vote</span>
+        </a>
       </div>
 
-      <div class="r-divider"></div>
-
-      <div class="examples-box">
-        <div class="examples-h">💡 <span style="color:#cbed3a;">EXAMPLE IDEAS</span> <span class="examples-h-sub">(EXAMPLES)</span></div>
-        <div class="examples-grid">
-          <div class="ex-item">
-            <div class="ex-icon">📅</div>
-            <div class="ex-name">Weekly</div>
-            <div class="ex-tag">(BEST)</div>
-            <div class="ex-desc">Run FLOW weekly with a fixed schedule</div>
-          </div>
-          <div class="ex-item">
-            <div class="ex-icon">📅</div>
-            <div class="ex-name">Bi-Weekly</div>
-            <div class="ex-tag">(GOOD)</div>
-            <div class="ex-desc">Run FLOW every two weeks</div>
-          </div>
-          <div class="ex-item">
-            <div class="ex-icon">📅</div>
-            <div class="ex-name">Monthly</div>
-            <div class="ex-tag">(NORMAL)</div>
-            <div class="ex-desc">Run FLOW once a month</div>
-          </div>
-          <div class="ex-item">
-            <div class="ex-icon">⭐</div>
-            <div class="ex-name">Special FLOW</div>
-            <div class="ex-tag">(OTHER)</div>
-            <div class="ex-desc">Run FLOW for special proposals or urgent issues</div>
-          </div>
-        </div>
+      <div class="cs-dots">
+        <span class="cs-dot"></span>
+        <span class="cs-dot"></span>
+        <span class="cs-dot"></span>
       </div>
-
-      <div class="field-box">
-        <div class="field-h">YOUR OPINION <span class="field-h-sub">(FREE TEXT)</span></div>
-        <div class="field-desc">Please share your opinion freely.<br>e.g., preferred schedule, FLOW topics, FLOW operation methods, etc.</div>
-        <textarea class="field-input textarea" id="opinion" placeholder="Enter your opinion here..." maxlength="1000" oninput="updateChar()"></textarea>
-        <div class="char-count"><span id="char-count">0 / 1000</span></div>
-      </div>
-
-      <div class="field-box">
-        <div class="field-h">COMMUNITY NAME <span class="field-h-sub">(NICKNAME)</span></div>
-        <div class="field-desc">Posting as your account nickname. Sign in to change.</div>
-        <input class="field-input" id="nickname-display" type="text" disabled placeholder="Sign in to participate">
-        <div class="nick-hint">ⓘ Your nickname will be shown with your submission in the Community FLOW results.</div>
-      </div>
-
-    </div>
-
-    <div class="success" id="success">
-      <div class="success-icon">✓</div>
-      <div class="success-h">Submitted</div>
-      <div class="success-t">Thank you for joining the Community FLOW.<br>Your opinion will help guide the next step.</div>
-    </div>
-
-    <div class="sub-bar" id="sub-bar">
-      <button class="sub-btn" id="sub-btn" disabled>
-        <span class="btn-icon">➤</span>
-        <span>
-          <span id="btn-txt">SUBMIT YOUR IDEA</span>
-          <div class="btn-sub">Submit your opinion</div>
-        </span>
-      </button>
     </div>
 
   </div>
 </div>
-
-<!-- LOGIN MODAL -->
-<div class="modal-bg" id="login-modal">
-  <div class="modal">
-    <div class="modal-h">Log In</div>
-    <div class="modal-sub">Sign in to your APEPE Community account.</div>
-    <div class="modal-field">
-      <label class="modal-label">Email</label>
-      <input class="modal-input" type="email" id="login-email" autocomplete="email">
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">Password</label>
-      <input class="modal-input" type="password" id="login-password" autocomplete="current-password">
-    </div>
-    <div class="modal-error" id="login-error"></div>
-    <div class="modal-actions">
-      <button class="modal-btn" id="login-btn" type="button">Log In</button>
-    </div>
-    <div class="modal-link">
-      Don't have an account? <a id="switch-to-signup">Sign Up</a>
-    </div>
-    <div class="modal-link" style="margin-top:4px;">
-      <a id="close-modal-1">Close</a>
-    </div>
-  </div>
-</div>
-
-<!-- SIGNUP MODAL -->
-<div class="modal-bg" id="signup-modal">
-  <div class="modal">
-    <div class="modal-h">Sign Up</div>
-    <div class="modal-sub">Create your APEPE Community account.</div>
-    <div class="modal-field">
-      <label class="modal-label">Email</label>
-      <input class="modal-input" type="email" id="signup-email" autocomplete="email">
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">Password (min 6 chars)</label>
-      <input class="modal-input" type="password" id="signup-password" autocomplete="new-password">
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">Nickname (2-20 chars, unique)</label>
-      <input class="modal-input" type="text" id="signup-nickname" maxlength="20">
-    </div>
-    <div class="modal-error" id="signup-error"></div>
-    <div class="modal-actions">
-      <button class="modal-btn" id="signup-btn" type="button">Sign Up</button>
-    </div>
-    <div class="modal-link">
-      Already have an account? <a id="switch-to-login">Log In</a>
-    </div>
-    <div class="modal-link" style="margin-top:4px;">
-      <a id="close-modal-2">Close</a>
-    </div>
-  </div>
-</div>
-
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
-
-const SUPABASE_URL = 'https://aejergnmqyiibgkqunxl.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_DXX6htNTRN9MV-NPATmhJQ_n6FYgjoL'
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-
-let currentUser = null
-let currentProfile = null
-
-// ─── Char counter ───
-window.updateChar = function(){
-  document.getElementById('char-count').textContent = document.getElementById('opinion').value.length + ' / 1000'
-}
-
-// ─── Auth UI rendering ───
-function renderLoggedIn(profile){
-  document.getElementById('auth-status').innerHTML = `
-    <div class="auth-user">
-      <span class="auth-dot"></span>
-      <span class="auth-nick">@${escapeHtml(profile.nickname)}</span>
-    </div>
-    <button class="auth-btn-secondary" id="logout-btn" type="button">Log Out</button>`
-  document.getElementById('logout-btn').addEventListener('click', doLogout)
-  document.getElementById('nickname-display').value = profile.nickname
-  document.getElementById('sub-btn').disabled = false
-}
-
-function renderLoggedOut(){
-  document.getElementById('auth-status').innerHTML = `
-    <span class="auth-msg">Sign in to submit</span>
-    <button class="auth-btn-secondary" id="open-login" type="button">Log In</button>
-    <button class="auth-btn" id="open-signup" type="button">Sign Up</button>`
-  document.getElementById('open-login').addEventListener('click', () => openModal('login'))
-  document.getElementById('open-signup').addEventListener('click', () => openModal('signup'))
-  document.getElementById('nickname-display').value = ''
-  document.getElementById('nickname-display').placeholder = 'Sign in to participate'
-  document.getElementById('sub-btn').disabled = true
-}
-
-// ─── Initial UI binding ───
-document.getElementById('open-login').addEventListener('click', () => openModal('login'))
-document.getElementById('open-signup').addEventListener('click', () => openModal('signup'))
-document.getElementById('switch-to-signup').addEventListener('click', () => openModal('signup'))
-document.getElementById('switch-to-login').addEventListener('click', () => openModal('login'))
-document.getElementById('close-modal-1').addEventListener('click', closeAllModals)
-document.getElementById('close-modal-2').addEventListener('click', closeAllModals)
-document.getElementById('login-btn').addEventListener('click', doLogin)
-document.getElementById('signup-btn').addEventListener('click', doSignup)
-document.getElementById('sub-btn').addEventListener('click', submitOpinion)
-
-function openModal(which){
-  closeAllModals()
-  if(which === 'login') document.getElementById('login-modal').classList.add('show')
-  else document.getElementById('signup-modal').classList.add('show')
-}
-
-function closeAllModals(){
-  document.getElementById('login-modal').classList.remove('show')
-  document.getElementById('signup-modal').classList.remove('show')
-  document.getElementById('login-error').classList.remove('show')
-  document.getElementById('signup-error').classList.remove('show')
-}
-
-function showLoginError(msg){
-  const el = document.getElementById('login-error')
-  el.textContent = msg
-  el.classList.add('show')
-}
-function showSignupError(msg){
-  const el = document.getElementById('signup-error')
-  el.textContent = msg
-  el.classList.add('show')
-}
-
-// ─── Auth actions ───
-async function doLogin(){
-  const email = document.getElementById('login-email').value.trim()
-  const password = document.getElementById('login-password').value
-  if(!email || !password){ showLoginError('Email and password required'); return }
-
-  const btn = document.getElementById('login-btn')
-  btn.disabled = true
-  btn.textContent = 'LOGGING IN...'
-
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if(error) throw error
-    await loadProfile(data.user)
-    closeAllModals()
-  } catch(e) {
-    showLoginError(e.message || 'Login failed')
-  } finally {
-    btn.disabled = false
-    btn.textContent = 'Log In'
-  }
-}
-
-async function doSignup(){
-  const email = document.getElementById('signup-email').value.trim()
-  const password = document.getElementById('signup-password').value
-  const nickname = document.getElementById('signup-nickname').value.trim()
-  if(!email || !password || !nickname){ showSignupError('All fields required'); return }
-  if(password.length < 6){ showSignupError('Password must be at least 6 characters'); return }
-  if(nickname.length < 2 || nickname.length > 20){ showSignupError('Nickname must be 2-20 characters'); return }
-
-  const btn = document.getElementById('signup-btn')
-  btn.disabled = true
-  btn.textContent = 'CREATING...'
-
-  try {
-    // Check nickname uniqueness first
-    const { data: existing, error: chkErr } = await supabase
-      .from('user_profiles')
-      .select('nickname')
-      .ilike('nickname', nickname)
-      .limit(1)
-    if(chkErr) throw chkErr
-    if(existing && existing.length > 0){
-      showSignupError('Nickname already taken. Please choose another.')
-      btn.disabled = false
-      btn.textContent = 'Sign Up'
-      return
-    }
-
-    // Sign up
-    const { data: signupData, error: signupErr } = await supabase.auth.signUp({ email, password })
-    if(signupErr) throw signupErr
-    const user = signupData.user
-    if(!user) throw new Error('Sign up failed: no user returned')
-
-    // Insert profile
-    const { error: profErr } = await supabase
-      .from('user_profiles')
-      .insert({ id: user.id, nickname })
-    if(profErr){
-      // Likely unique violation race condition
-      if((profErr.message || '').toLowerCase().includes('duplicate')){
-        showSignupError('Nickname already taken. Please choose another.')
-      } else {
-        showSignupError('Profile creation failed: ' + profErr.message)
-      }
-      btn.disabled = false
-      btn.textContent = 'Sign Up'
-      return
-    }
-
-    await loadProfile(user)
-    closeAllModals()
-  } catch(e) {
-    showSignupError(e.message || 'Sign up failed')
-  } finally {
-    btn.disabled = false
-    btn.textContent = 'Sign Up'
-  }
-}
-
-async function doLogout(){
-  await supabase.auth.signOut()
-  currentUser = null
-  currentProfile = null
-  renderLoggedOut()
-}
-
-async function loadProfile(user){
-  currentUser = user
-  const { data, error } = await supabase
-    .from('user_profiles')
-    .select('nickname')
-    .eq('id', user.id)
-    .single()
-  if(error || !data){
-    // No profile yet — shouldn't happen normally
-    currentProfile = null
-    renderLoggedOut()
-    return
-  }
-  currentProfile = data
-  renderLoggedIn(data)
-}
-
-// Restore session on page load
-async function init(){
-  const { data: { session } } = await supabase.auth.getSession()
-  if(session && session.user){
-    await loadProfile(session.user)
-  } else {
-    renderLoggedOut()
-  }
-}
-
-supabase.auth.onAuthStateChange(async (event, session) => {
-  if(event === 'SIGNED_OUT'){
-    currentUser = null
-    currentProfile = null
-    renderLoggedOut()
-  }
-})
-
-// ─── Submit opinion ───
-async function submitOpinion(){
-  if(!currentUser || !currentProfile){
-    alert('Please sign in first.')
-    return
-  }
-  const op = document.getElementById('opinion').value.trim()
-  if(!op){ document.getElementById('opinion').focus(); return }
-
-  const btn = document.getElementById('sub-btn')
-  const btnTxt = document.getElementById('btn-txt')
-  btn.disabled = true
-  btnTxt.textContent = 'SUBMITTING...'
-
-  try {
-    const { error } = await supabase
-      .from('opinions')
-      .insert({
-        opinion: op,
-        nickname: currentProfile.nickname,
-        user_id: currentUser.id,
-        source: 'direct'
-      })
-    if(error) throw error
-    showSuccess()
-  } catch(e) {
-    btn.disabled = false
-    btnTxt.textContent = 'SUBMIT YOUR IDEA'
-    alert('Submit failed: ' + (e.message || e))
-  }
-}
-
-function showSuccess(){
-  document.getElementById('form-wrap').style.display = 'none'
-  document.getElementById('sub-bar').style.display = 'none'
-  document.getElementById('success').classList.add('show')
-}
-
-function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
-}
-
-init()
-</script>
 </body>
 </html>
