@@ -597,11 +597,23 @@ function renderResults(showAll){
 
 async function loadResults(){
   if(!activePoll) return
-  const { data: votes, error } = await supabase
-    .from('poll_votes')
-    .select('option_index')
-    .eq('poll_id', activePoll.id)
-  if(error){ console.error(error); return }
+  // Pagination - Supabase server-side max-rows cap (1000)
+  let votes = []
+  let offset = 0
+  const pageSize = 1000
+  while(true){
+    const { data: page, error } = await supabase
+      .from('poll_votes')
+      .select('option_index')
+      .eq('poll_id', activePoll.id)
+      .range(offset, offset + pageSize - 1)
+    if(error){ console.error(error); return }
+    if(!page || page.length === 0) break
+    votes = votes.concat(page)
+    if(page.length < pageSize) break
+    offset += pageSize
+    if(offset > 1000000) break
+  }
   const counts = new Array(activePoll.options.length).fill(0)
   votes.forEach(v => { if(v.option_index >= 0 && v.option_index < counts.length) counts[v.option_index]++ })
   const total = counts.reduce((a, b) => a + b, 0)
