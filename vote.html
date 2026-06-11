@@ -656,13 +656,14 @@ async function loadResults(){
     const isMy = myVote === i
     const isLeading = total > 0 && counts[i] === maxCount
     const fillCls = pct < 15 ? ' low' : ''
+    const cleanName = opt.replace(/^\s*\d+\.\s*/, '')
     return `
       <div class="r-card${isLeading ? ' leading' : ''}">
         ${isLeading ? '<div class="r-card-badge">★ Leading</div>' : ''}
         <div class="r-card-row">
           <div class="r-card-info">
             <span class="r-card-num">${i + 1}.</span>
-            <span class="r-card-name">${escapeHtml(opt)}</span>
+            <span class="r-card-name">${escapeHtml(cleanName)}</span>
             ${isMy ? '<span class="r-card-you">(YOU)</span>' : ''}
           </div>
           <div class="r-card-stats">
