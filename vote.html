@@ -89,6 +89,36 @@ body{padding:16px;display:flex;justify-content:center;align-items:center;min-hei
 .opt-num{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1px;}
 
 /* RESULT (closed/voted) */
+
+/* New result cards */
+.result-h{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:14px;}
+.result-h-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;color:rgba(255,255,255,.6);letter-spacing:2.5px;text-transform:uppercase;}
+.result-h-total{display:flex;align-items:baseline;gap:6px;}
+.result-h-num{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:500;color:#cbed3a;}
+.result-h-lbl{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1.5px;text-transform:uppercase;}
+
+.r-card{background:#1a1a1a;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:11px 14px;margin-bottom:7px;}
+.r-card.leading{background:linear-gradient(90deg,rgba(203,237,58,.12) 0%,rgba(203,237,58,.03) 100%);border:1.5px solid #cbed3a;padding:13px 15px;margin-bottom:8px;position:relative;}
+.r-card-badge{position:absolute;top:-1px;right:11px;background:#cbed3a;color:#0a1402;font-size:9px;font-weight:600;letter-spacing:1.5px;padding:2px 8px;border-radius:0 0 4px 4px;text-transform:uppercase;}
+.r-card-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.r-card.leading .r-card-row{margin-bottom:8px;}
+.r-card-info{display:flex;align-items:baseline;gap:6px;}
+.r-card-num{color:rgba(255,255,255,.4);font-size:12px;font-weight:500;}
+.r-card.leading .r-card-num{color:rgba(255,255,255,.45);font-size:13px;}
+.r-card-name{color:rgba(255,255,255,.88);font-size:14px;}
+.r-card.leading .r-card-name{color:#fff;font-size:15px;font-weight:500;}
+.r-card-you{color:#cbed3a;font-size:11px;margin-left:4px;letter-spacing:.5px;}
+.r-card-stats{text-align:right;}
+.r-card-pct{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:500;color:rgba(255,255,255,.85);line-height:1;}
+.r-card.leading .r-card-pct{font-size:22px;color:#cbed3a;}
+.r-card-votes{font-size:10.5px;color:rgba(255,255,255,.45);margin-top:1px;}
+.r-card.leading .r-card-votes{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;}
+.r-card-bar{height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;}
+.r-card.leading .r-card-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;}
+.r-card-fill{height:100%;background:rgba(203,237,58,.55);border-radius:2px;}
+.r-card.leading .r-card-fill{background:#cbed3a;border-radius:3px;}
+.r-card-fill.low{background:rgba(203,237,58,.35);}
+
 .result-box{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:10px;}
 .result-h{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
 .result-total{font-size:11px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:1px;}
@@ -500,15 +530,7 @@ function renderNeedsLogin(){
       <span class="state-icon">🔑</span>
       <span>Please sign in to cast your vote.</span>
     </div>
-    <div class="opts-box">
-      ${activePoll.options.map((opt, i) => `
-        <button class="opt" disabled>
-          <span class="opt-radio"></span>
-          <span class="opt-label">${escapeHtml(opt)}</span>
-          <span class="opt-num">${i + 1}</span>
-        </button>
-      `).join('')}
-    </div>
+    ${renderResults(true)}
   `
 }
 
@@ -592,7 +614,16 @@ function startCountdown(opensAt){
 
 // ─── Results render ───
 function renderResults(showAll){
-  return `<div class="result-box" id="results-box"><div class="result-h">Current Results <span class="result-total" id="result-total">— votes</span></div><div id="result-bars">Loading...</div></div>`
+  return `<div class="result-box" id="results-box">
+    <div class="result-h">
+      <span class="result-h-label">Live Results</span>
+      <span class="result-h-total">
+        <span class="result-h-num" id="result-total">—</span>
+        <span class="result-h-lbl">votes total</span>
+      </span>
+    </div>
+    <div id="result-bars">Loading...</div>
+  </div>`
 }
 
 async function loadResults(){
@@ -618,23 +649,35 @@ async function loadResults(){
   votes.forEach(v => { if(v.option_index >= 0 && v.option_index < counts.length) counts[v.option_index]++ })
   const total = counts.reduce((a, b) => a + b, 0)
 
+  // Find leading option (max count). Order stays as defined in poll.
+  const maxCount = Math.max(...counts)
   const bars = activePoll.options.map((opt, i) => {
     const pct = total > 0 ? (counts[i] / total * 100) : 0
     const isMy = myVote === i
+    const isLeading = total > 0 && counts[i] === maxCount
+    const fillCls = pct < 15 ? ' low' : ''
     return `
-      <div class="r-opt">
-        <div class="r-opt-h">
-          <span class="r-opt-name${isMy ? ' my' : ''}">${escapeHtml(opt)}${isMy ? ' (you)' : ''}</span>
-          <span class="r-opt-pct">${counts[i]} (${pct.toFixed(1)}%)</span>
+      <div class="r-card${isLeading ? ' leading' : ''}">
+        ${isLeading ? '<div class="r-card-badge">★ Leading</div>' : ''}
+        <div class="r-card-row">
+          <div class="r-card-info">
+            <span class="r-card-num">${i + 1}.</span>
+            <span class="r-card-name">${escapeHtml(opt)}</span>
+            ${isMy ? '<span class="r-card-you">(YOU)</span>' : ''}
+          </div>
+          <div class="r-card-stats">
+            <div class="r-card-pct">${pct.toFixed(1)}%</div>
+            <div class="r-card-votes">${counts[i]} vote${counts[i] === 1 ? '' : 's'}</div>
+          </div>
         </div>
-        <div class="r-bar-bg"><div class="r-bar-fill${isMy ? ' my' : ''}" style="width:${pct}%"></div></div>
+        <div class="r-card-bar"><div class="r-card-fill${fillCls}" style="width:${pct}%"></div></div>
       </div>
     `
   }).join('')
 
   const totalEl = document.getElementById('result-total')
   const barsEl = document.getElementById('result-bars')
-  if(totalEl) totalEl.textContent = total + ' vote' + (total === 1 ? '' : 's')
+  if(totalEl) totalEl.textContent = total
   if(barsEl) barsEl.innerHTML = bars
 }
 
